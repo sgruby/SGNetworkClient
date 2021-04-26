@@ -36,6 +36,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D24BB76C26376F2F00F041E5 /* Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shared.xcconfig; sourceTree = "<group>"; };
+		D24BB76D26376F2F00F041E5 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		D24BB76E26376F2F00F041E5 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		D29094D126371EDD00FE0EBC /* SGNetworkClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SGNetworkClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D29094D426371EDD00FE0EBC /* SGNetworkClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SGNetworkClient.h; sourceTree = "<group>"; };
 		D29094D526371EDD00FE0EBC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -76,6 +79,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D24BB76B26376F2F00F041E5 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				D24BB76C26376F2F00F041E5 /* Shared.xcconfig */,
+				D24BB76D26376F2F00F041E5 /* Debug.xcconfig */,
+				D24BB76E26376F2F00F041E5 /* Release.xcconfig */,
+			);
+			path = xcconfig;
+			sourceTree = SOURCE_ROOT;
+		};
 		D29094C726371EDD00FE0EBC = {
 			isa = PBXGroup;
 			children = (
@@ -97,6 +110,7 @@
 		D29094D326371EDD00FE0EBC /* SGNetworkClient */ = {
 			isa = PBXGroup;
 			children = (
+				D24BB76B26376F2F00F041E5 /* xcconfig */,
 				D290950426371F9A00FE0EBC /* Error+NetworkExtensions.swift */,
 				D290950626371F9A00FE0EBC /* HTTPStructures.swift */,
 				D29094FF26371F9A00FE0EBC /* JSONKeyDecoder.swift */,
@@ -321,7 +335,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -379,7 +392,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -393,6 +405,7 @@
 		};
 		D29094E626371EDD00FE0EBC /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D24BB76D26376F2F00F041E5 /* Debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -418,6 +431,7 @@
 		};
 		D29094E726371EDD00FE0EBC /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D24BB76E26376F2F00F041E5 /* Release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
