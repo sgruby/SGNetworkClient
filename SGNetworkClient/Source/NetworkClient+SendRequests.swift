@@ -39,7 +39,7 @@ extension NetworkClient {
     // This takes a request and returns a JSON parsed object in the completion handler.
     // ResultKey is used if the object you want to get back is not the full JSON response.
     @discardableResult
-    public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: OperationQueue? = nil, completionHandler handler: ((T?, Error?) -> Void)? = nil) -> NetworkTask? {
+    public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue? = nil, completionHandler handler: ((T?, Error?) -> Void)? = nil) -> NetworkTask? {
         let completionQueue = completionQueue ?? self.completionQueue
         
         guard let preparedURLRequest = request.prepareURLRequest(with: self) else {handler?(nil, NetworkError.invalidURL); return nil}
@@ -62,7 +62,7 @@ extension NetworkClient {
                 newRequest.retryCount = request.retryCount - 1
                 self.perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
             } else {
-                completionQueue.addOperation {
+                completionQueue.async {
                     handler?(response.result, response.error)
                 }
 

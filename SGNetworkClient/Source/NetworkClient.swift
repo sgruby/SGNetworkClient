@@ -30,7 +30,7 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     public var requestLogger: ((String) -> Void)?
     public var logRequests: Bool = false
     public var logResponses: Bool = false
-    public var completionQueue: OperationQueue = .main
+    public var completionQueue: DispatchQueue = .main
 
     public var userAgent: String? {
         get {
