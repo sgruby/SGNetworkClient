@@ -39,7 +39,8 @@ extension NetworkClient {
     // This takes a request and returns a JSON parsed object in the completion handler.
     // ResultKey is used if the object you want to get back is not the full JSON response.
     @discardableResult
-    public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionHandler handler: ((T?, Error?) -> Void)? = nil) -> NetworkTask? {
+    public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: OperationQueue? = nil, completionHandler handler: ((T?, Error?) -> Void)? = nil) -> NetworkTask? {
+        let completionQueue = completionQueue ?? self.completionQueue
         
         guard let preparedURLRequest = request.prepareURLRequest(with: self) else {handler?(nil, NetworkError.invalidURL); return nil}
 
@@ -54,14 +55,16 @@ extension NetworkClient {
             if request.logResponse == true && self.logResponses == true {
                 self.log(urlResponse: urlResponse, data: data, error: error)
             }
-            let response = self.handleResponse(resultType: resultType, resultKey: resultKey, data: data, urlResponse: urlResponse, error: error)
+            let response = NetworkClient.handleResponse(resultType: resultType, resultKey: resultKey, data: data, urlResponse: urlResponse, error: error)
             
             if self.shouldRetry(request: request, error: error) == true {
                 let newRequest = request
                 newRequest.retryCount = request.retryCount - 1
                 self.perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
             } else {
-                handler?(response.result, response.error)
+                completionQueue.addOperation {
+                    handler?(response.result, response.error)
+                }
 
                 // Remove the request from our list
                 if let networkTask = self.networkTask(for: request.uuid) {
@@ -81,7 +84,14 @@ extension NetworkClient {
         
         let requestNetworkTask: NetworkTask = networkTask(for: request.uuid) ?? NetworkTask(sessionTask, request: request)
         requestNetworkTask.dataTask = sessionTask
-        networkTasks.insert(requestNetworkTask)
+        
+        // Add guards here
+        
+        lockingQueue.async {[weak self] in
+            guard let self = self else {return}
+            self.networkTasks.insert(requestNetworkTask)
+        }
+
         sessionTask.resume()
         return requestNetworkTask
     }

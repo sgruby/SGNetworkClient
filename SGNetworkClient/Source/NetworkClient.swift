@@ -12,21 +12,27 @@
 import Foundation
 
 open class NetworkClient: NSObject, URLSessionTaskDelegate {
+    // The networkTasks can be accessed on multiple threads,
+    // so we have to be careful when we access it and use
+    // the lockingQueue to handle that
     internal var networkTasks = Set<NetworkTask>()
-    internal let baseURL: URL
+    internal let lockingQueue: DispatchQueue = DispatchQueue.init(label: "com.grubysolutions.networkclient.lock")
+
+    public var baseURL: URL
     internal var urlSessionConfiguration: URLSessionConfiguration {
         // if the configuration changes, we need to update the session
         didSet {
             setupURLSession()
         }
     }
+    
     public var responseLogger: ((String) -> Void)?
     public var requestLogger: ((String) -> Void)?
     public var logRequests: Bool = false
     public var logResponses: Bool = false
     public var completionQueue: OperationQueue = .main
 
-    var userAgent: String? {
+    public var userAgent: String? {
         get {
             (urlSessionConfiguration.httpAdditionalHeaders?.first {($0.key as? String) == "User-Agent"})?.value as? String
         }
@@ -40,28 +46,24 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
         }
     }
     
-    var timeoutInterval: TimeInterval = 0
-    var retryCount: Int = 0
-    internal lazy var urlSession: URLSession = {
-        return URLSession(configuration: urlSessionConfiguration,
-                          delegate: self,
-                          delegateQueue: completionQueue)
-    }()
+    public var timeoutInterval: TimeInterval = 0
+    public var retryCount: Int = 0
+    internal var urlSession: URLSession = .shared // This is a placeholder until init
 
     private func setupURLSession() {
         urlSession = URLSession(configuration: urlSessionConfiguration,
                                 delegate: self,
-                                delegateQueue: OperationQueue.main)
+                                delegateQueue: nil)
     }
     
     public init(baseURL: URL, configuration: URLSessionConfiguration? = nil) {
         self.baseURL = baseURL
-        self.timeoutInterval = 120
-        let config = configuration ?? URLSessionConfiguration.default
-        var headers = config.httpAdditionalHeaders ?? [:]
-        headers["User-Agent"] = NetworkClient.defaultUserAgent
-        config.httpAdditionalHeaders = headers
-        urlSessionConfiguration = config
+        timeoutInterval = 120
+        urlSessionConfiguration = configuration ?? URLSessionConfiguration.default
+        super.init()
+        
+        userAgent = NetworkClient.defaultUserAgent
+        setupURLSession()
     }
     
     public func addHTTP(header: String, for key: String) {
@@ -82,21 +84,44 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     
     // Reset everything
     public func cancelAllRequests() {
-        urlSession.finishTasksAndInvalidate()
-        urlSession = URLSession(configuration: urlSessionConfiguration)
-        networkTasks.removeAll()
+        urlSession.getAllTasks {[weak self] tasks in
+            guard let self = self else {return}
+            tasks.forEach { task in
+                task.cancel()
+            }
+            
+            self.lockingQueue.async {[weak self] in
+                guard let self = self else {return}
+                self.networkTasks.removeAll()
+            }
+        }
     }
 
     func networkTask(for task: URLSessionTask) -> NetworkTask? {
-        return (networkTasks.first {$0.dataTask == task})
+        var result: NetworkTask?
+        lockingQueue.sync {[weak self] in
+            guard let self = self else {return}
+            result = (self.networkTasks.first {$0.dataTask == task})
+        }
+        
+        return result
     }
 
     func networkTask(for uuid: UUID) -> NetworkTask? {
-        return (networkTasks.first {$0.networkRequest.uuid == uuid})
+        var result: NetworkTask?
+        lockingQueue.sync {[weak self] in
+            guard let self = self else {return}
+            result = (self.networkTasks.first {$0.networkRequest.uuid == uuid})
+        }
+        
+        return result
     }
     
     func removeTask(_ task: NetworkTask) {
-        networkTasks.remove(task)
+        lockingQueue.async {[weak self] in
+            guard let self = self else {return}
+            self.networkTasks.remove(task)
+        }
     }
     
     // Not called when the call is made with a closure
@@ -105,7 +130,7 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
 
     // Some stupid servers return 200 responses, but embed the errors in the header
     // Let this method be overwritten if required
-    open func headerError(response: HTTPURLResponse) -> Error? {
+    static public func headerError(response: HTTPURLResponse) -> Error? {
         var networkError: NetworkError?
         var flashMessages = (response.allHeaderFields.first {($0.key as? String)?.lowercased() == "x-flash-messages"})?.value as? String
         if flashMessages != nil {

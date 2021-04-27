@@ -8,7 +8,7 @@
 import Foundation
 
 extension NetworkClient {
-    func handleResponse<T: Decodable>(resultType: T.Type, resultKey: String? = nil, data: Data?, urlResponse: URLResponse?, error: Error?) -> (result: T?, error: Error?) {
+    static func handleResponse<T: Decodable>(resultType: T.Type, resultKey: String? = nil, data: Data?, urlResponse: URLResponse?, error: Error?) -> (result: T?, error: Error?) {
         var returnError: Error?
         var result: T?
         if let error = error as? URLError, case URLError.cancelled = error {
