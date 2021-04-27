@@ -57,7 +57,7 @@ public class NetworkRequest {
         self.retryCount = retryCount
         self.logRequest = logRequest
         self.logResponse = logResponse
-        if type(of: body) == Data.self {
+        if type(of: body) == Data.self || type(of: body) == Data?.self {
             if let data = body as? Data, data.isEmpty == false {
                 self.body = data
             } else {
