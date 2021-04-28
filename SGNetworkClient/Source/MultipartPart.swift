@@ -66,7 +66,7 @@ public struct MultipartPart {
     public init(url: URL, name: String, filename: String? = nil, mimeType: MIMEType? = nil) {
         self.bodyStream = InputStream(url: url) ?? InputStream(data: Data())
         self.name = name
-        self.filename = filename
+        self.filename = filename ?? url.lastPathComponent
         
         // Files must get a MIME Type
         self.mimeType = mimeType ?? MIMEType.other(value: MultipartPart.mimeType(pathExtension: url.pathExtension))
