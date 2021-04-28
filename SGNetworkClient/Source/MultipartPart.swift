@@ -37,7 +37,7 @@ public enum MIMEType {
 }
 
 public struct MultipartPart {
-    let mimeType: MIMEType
+    let mimeType: MIMEType?
     let filename: String?
     let name: String
     let bodyStream: InputStream
@@ -51,10 +51,6 @@ public struct MultipartPart {
         self.init(data: text, name: name, filename: filename, mimeType: .plainText)
     }
     
-    public init(data: Data, name: String, filename: String? = nil) {
-        self.init(data: data, name: name, filename: filename, mimeType: .binary)
-    }
-
     public init(video: Data, name: String, filename: String) {
         self.init(data: video, name: name, filename: filename, mimeType: .video)
     }
@@ -63,7 +59,7 @@ public struct MultipartPart {
         self.bodyStream = InputStream(data: data)
         self.name = name
         self.filename = filename
-        self.mimeType = mimeType ?? .binary
+        self.mimeType = mimeType
         self.length = UInt64(data.count)
     }
 
@@ -71,6 +67,8 @@ public struct MultipartPart {
         self.bodyStream = InputStream(url: url) ?? InputStream(data: Data())
         self.name = name
         self.filename = filename
+        
+        // Files must get a MIME Type
         self.mimeType = mimeType ?? MIMEType.other(value: MultipartPart.mimeType(pathExtension: url.pathExtension))
             
         if let attributes = try? FileManager.default.attributesOfItem(atPath: url.path), let size = attributes[.size] as? NSNumber {
