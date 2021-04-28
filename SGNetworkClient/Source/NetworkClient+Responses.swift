@@ -8,7 +8,7 @@
 import Foundation
 
 extension NetworkClient {
-    static func handleResponse<T: Decodable>(resultType: T.Type, resultKey: String? = nil, data: Data?, urlResponse: URLResponse?, error: Error?) -> (result: T?, error: Error?) {
+    static func handleResponse<T: Decodable>(resultType: T.Type, resultKey: String? = nil, data: Data?, urlResponse: URLResponse?, error: Error?) -> (NetworkResponse<T>) {
         var returnError: Error?
         var result: T?
         if let error = error as? URLError, case URLError.cancelled = error {
@@ -45,7 +45,7 @@ extension NetworkClient {
             }
         }
         
-        return(result, returnError)
+        return NetworkResponse(error: returnError, httpResponse: urlResponse as? HTTPURLResponse, result: result)
     }
 
     internal func shouldRetry(request: NetworkRequest, error: Error?) -> Bool {

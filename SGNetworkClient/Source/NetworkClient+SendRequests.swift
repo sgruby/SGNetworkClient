@@ -10,21 +10,21 @@ import Foundation
 extension NetworkClient {
     // This takes a method and path with no body and returns a Data object in the completion handler
     @discardableResult
-    public func perform(method: HTTPMethod = .get, for path: String, completionHandler handler: ((Data?, Error?) -> Void)? = nil) -> NetworkTask? {
+    public func perform(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
         request.retryCount = retryCount
         return perform(request: request, completionHandler: handler)
     }
 
     @discardableResult
-    public func perform<T: Decodable>(method: HTTPMethod = .get, for path: String, resultType: T.Type, resultKey: String? = nil, completionHandler handler: ((T?, Error?) -> Void)? = nil) -> NetworkTask? {
+    public func perform<T: Decodable>(method: HTTPMethod = .get, for path: String, resultType: T.Type, resultKey: String? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         return perform(method: method, for: path, body: Data(), resultType: resultType, resultKey: resultKey, completionHandler: handler)
     }
     
     // This takes a method and path with a encodable object that is encoded to JSON and returns a JSON parsed object in the completion handler.
     // ResultKey is used if the object you want to get back is not the full JSON response.
     @discardableResult
-    public func perform<T: Decodable, Body: Encodable>(method: HTTPMethod = .get, for path: String, body: Body, resultType: T.Type, resultKey: String? = nil, completionHandler handler: ((T?, Error?) -> Void)? = nil) -> NetworkTask? {
+    public func perform<T: Decodable, Body: Encodable>(method: HTTPMethod = .get, for path: String, body: Body, resultType: T.Type, resultKey: String? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, body: body, logRequest: logRequests, logResponse: logResponses)
         request.retryCount = retryCount
         return perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
@@ -32,17 +32,17 @@ extension NetworkClient {
     
     // This takes a request with no body and returns a Data object in the completion handler
     @discardableResult
-    public func perform(request: NetworkRequest, completionHandler handler: ((Data?, Error?) -> Void)? = nil) -> NetworkTask? {
+    public func perform(request: NetworkRequest, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
         return perform(request: request, resultType: Data.self, completionHandler: handler)
     }
 
     // This takes a request and returns a JSON parsed object in the completion handler.
     // ResultKey is used if the object you want to get back is not the full JSON response.
     @discardableResult
-    public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue? = nil, completionHandler handler: ((T?, Error?) -> Void)? = nil) -> NetworkTask? {
+    public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         let completionQueue = completionQueue ?? self.completionQueue
         
-        guard let preparedURLRequest = request.prepareURLRequest(with: self) else {handler?(nil, NetworkError.invalidURL); return nil}
+        guard let preparedURLRequest = request.prepareURLRequest(with: self) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil)); return nil}
 
         // The individual request can turn off logging
         if request.logRequest == true && logRequests == true {
@@ -64,7 +64,7 @@ extension NetworkClient {
                 self.perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
             } else {
                 completionQueue.async {
-                    handler?(response.result, response.error)
+                    handler?(response)
                 }
 
                 // Remove the request from our list

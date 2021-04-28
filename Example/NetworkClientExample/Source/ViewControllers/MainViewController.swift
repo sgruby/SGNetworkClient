@@ -28,7 +28,7 @@ class MainViewController: UIViewController {
                 print(string)
             }
         
-            sendAuthenticatedRequest()
+            sendParsedRequest()
             
         }
     }
@@ -36,32 +36,32 @@ class MainViewController: UIViewController {
     func sendAuthenticatedRequest() {
         let request = NetworkRequest(method: .get, path: "https://authenticationtest.com/HTTPAuth/")
         request.credentials = URLCredential(user: "user", password: "pass", persistence: .forSession)
-        client?.perform(request: request) {(result, error) in
-            if let error = error {
+        client?.perform(request: request) {(response) in
+            if let error = response?.error {
                 print("Error: \(error.localizedDescription)")
             } else {
-                print("result: \(String(describing: result))")
+                print("result: \(String(describing: response?.result))")
             }
         }
     }
     
     func sendParsedRequest() {
-        client?.perform(method: .get, for: "/todos/1", resultType: Mock.self) {(result, error) in
-            if let error = error {
+        client?.perform(method: .get, for: "/todos/1", resultType: Mock.self) {(response) in
+            if let error = response?.error {
                 print("Error: \(error.localizedDescription)")
             } else {
-                print("result: \(String(describing: result))")
+                print("result: \(String(describing: response?.result))")
             }
         }
     }
     
     func sendLargeDownloadWithCancel() {
         let request = NetworkRequest(path: "http://ipv4.download.thinkbroadband.com/10MB.zip")
-        let task = client?.perform(request: request) {(result, error) in
-            if let result = result {
+        let task = client?.perform(request: request) {(response) in
+            if let result = response?.result {
                 print("download length: \(result.count)")
             }
-            print("Large download: \(String(describing: error))")
+            print("Large download: \(String(describing: response?.error))")
         }
 
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
@@ -74,8 +74,8 @@ class MainViewController: UIViewController {
         let request = NetworkRequest(method: .get, path: "https://192.168.1.2")
         request.timeoutInterval = 2
         request.retryCount = 1
-        client?.perform(request: request) {(result, error) in
-            print("Failed request: \(String(describing: error))")
+        client?.perform(request: request) {(response) in
+            print("Failed request: \(String(describing: response?.error))")
         }
     }
 }

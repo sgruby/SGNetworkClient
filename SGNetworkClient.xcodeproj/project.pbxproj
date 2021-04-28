@@ -25,6 +25,7 @@
 		D290951526371F9A00FE0EBC /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D290950826371F9A00FE0EBC /* NetworkRequest.swift */; };
 		D290951626371F9A00FE0EBC /* NetworkClient+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D290950926371F9A00FE0EBC /* NetworkClient+Logging.swift */; };
 		D290951726371F9A00FE0EBC /* MultipartPart.swift in Sources */ = {isa = PBXBuildFile; fileRef = D290950A26371F9A00FE0EBC /* MultipartPart.swift */; };
+		D2C99E192639F2650095D6BD /* NetworkResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C99E182639F2650095D6BD /* NetworkResponse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		D290950826371F9A00FE0EBC /* NetworkRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NetworkRequest.swift; path = Source/NetworkRequest.swift; sourceTree = "<group>"; };
 		D290950926371F9A00FE0EBC /* NetworkClient+Logging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "NetworkClient+Logging.swift"; path = "Source/NetworkClient+Logging.swift"; sourceTree = "<group>"; };
 		D290950A26371F9A00FE0EBC /* MultipartPart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MultipartPart.swift; path = Source/MultipartPart.swift; sourceTree = "<group>"; };
+		D2C99E182639F2650095D6BD /* NetworkResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NetworkResponse.swift; path = Source/NetworkResponse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +132,7 @@
 				D290950026371F9A00FE0EBC /* NetworkClient+UserAgent.swift */,
 				D290950526371F9A00FE0EBC /* NetworkError.swift */,
 				D290950826371F9A00FE0EBC /* NetworkRequest.swift */,
+				D2C99E182639F2650095D6BD /* NetworkResponse.swift */,
 				D29094FE26371F9A00FE0EBC /* NetworkTask.swift */,
 				D29094D426371EDD00FE0EBC /* SGNetworkClient.h */,
 			);
@@ -263,6 +266,7 @@
 				D290950B26371F9A00FE0EBC /* NetworkTask.swift in Sources */,
 				D290950E26371F9A00FE0EBC /* NetworkClient.swift in Sources */,
 				D290951426371F9A00FE0EBC /* NetworkClient+Authentication.swift in Sources */,
+				D2C99E192639F2650095D6BD /* NetworkResponse.swift in Sources */,
 				D290951526371F9A00FE0EBC /* NetworkRequest.swift in Sources */,
 				D22591BB2639C30A00C50337 /* MultipartBoundary.swift in Sources */,
 				D290951026371F9A00FE0EBC /* NetworkClient+SendRequests.swift in Sources */,
