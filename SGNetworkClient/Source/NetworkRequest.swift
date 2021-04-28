@@ -37,8 +37,8 @@ public class NetworkRequest {
     public var credentials: URLCredential?
     let uuid: UUID = UUID()
 
-    var uploadProgressHandler: (handler: ProgressHandler, queue: DispatchQueue)?
-    public let uploadProgress = Progress(totalUnitCount: 0)
+    public var uploadProgressHandler: (handler: ProgressHandler, queue: DispatchQueue)?
+    let uploadProgress = Progress(totalUnitCount: 0)
 
     public init(method: HTTPMethod = .get, path: String, retryCount: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
         self.method = method
@@ -103,31 +103,34 @@ public class NetworkRequest {
         }
 
         headers?.forEach { urlRequest.addValue($0.value, forHTTPHeaderField: $0.field) }
-        
+
         var uploadData: Data?
         var tempFileURL: URL?
-        var extraHeaders: [HTTPHeader] = []
 
-        extraHeaders.append(HTTPHeader(field: "Content-Type", value: "multipart/form-data; boundary=\(multipartBody.boundary)"))
+        if multipartBody.parts.isEmpty == false {
+            var extraHeaders: [HTTPHeader] = []
 
-        // Over 10 MB, write to a file to be more memory efficient
-        if multipartBody.contentLength < 10_000_000 {
-            if let data = prepareUploadData() {
-                var extraHeaders: [HTTPHeader] = []
-                extraHeaders.append(HTTPHeader(field: "Content-Length", value: "\(data.count)"))
-                uploadData = data
+            extraHeaders.append(HTTPHeader(field: "Content-Type", value: "multipart/form-data; boundary=\(multipartBody.boundary)"))
+
+            // Over 10 MB, write to a file to be more memory efficient
+            if multipartBody.contentLength < 10_000_000 {
+                if let data = prepareUploadData() {
+                    var extraHeaders: [HTTPHeader] = []
+                    extraHeaders.append(HTTPHeader(field: "Content-Length", value: "\(data.count)"))
+                    uploadData = data
+                }
+            } else {
+                tempFileURL = multipartBody.encodedTemporaryFile()
+                var contentLength: UInt64 = 0
+                if let tempFileURL = tempFileURL, let attributes = try? FileManager.default.attributesOfItem(atPath: tempFileURL.path), let size = attributes[.size] as? NSNumber {
+                    contentLength = size.uint64Value
+                }
+                
+                extraHeaders.append(HTTPHeader(field: "Content-Length", value: "\(contentLength)"))
             }
-        } else {
-            tempFileURL = multipartBody.encodedTemporaryFile()
-            var contentLength: UInt64 = 0
-            if let tempFileURL = tempFileURL, let attributes = try? FileManager.default.attributesOfItem(atPath: tempFileURL.path), let size = attributes[.size] as? NSNumber {
-                contentLength = size.uint64Value
-            }
-            
-            extraHeaders.append(HTTPHeader(field: "Content-Length", value: "\(contentLength)"))
+
+            extraHeaders.forEach { urlRequest.addValue($0.value, forHTTPHeaderField: $0.field) }
         }
-
-        extraHeaders.forEach { urlRequest.addValue($0.value, forHTTPHeaderField: $0.field) }
 
         return NetworkPreparedRequest(data: uploadData, tempFile: tempFileURL, request: urlRequest)
     }
