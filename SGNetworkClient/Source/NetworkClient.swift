@@ -128,6 +128,10 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     }
 
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        networkTask(for: task)?.networkRequest.updateUploadProgress(totalBytesSent: totalBytesSent, totalBytesExpectedToSend: totalBytesExpectedToSend)
+    }
+    
     // Some stupid servers return 200 responses, but embed the errors in the header
     // Let this method be overwritten if required
     static public func headerError(response: HTTPURLResponse) -> Error? {

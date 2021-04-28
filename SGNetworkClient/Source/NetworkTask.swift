@@ -20,6 +20,7 @@ public class NetworkTask: Equatable, Hashable {
     }
     
     var dataTask: URLSessionTask
+    var tempFileURL: URL?
     let networkRequest: NetworkRequest
 
     init(_ task: URLSessionTask, request: NetworkRequest) {

@@ -8,7 +8,8 @@
 import Foundation
 
 extension NetworkClient {
-    internal func log(request: URLRequest) {
+    internal func log(preparedRequest: NetworkPreparedRequest) {
+        let request = preparedRequest.request
         var requestString = "\n------------- Request --------------------\n"
         requestString += request.httpMethod ?? "UNKNOWN"
         requestString += " "
@@ -39,6 +40,12 @@ extension NetworkClient {
 
         if let body = request.httpBody, let str = String(data: body, encoding: String.Encoding.utf8) {
             requestString += str
+        }
+        
+        if preparedRequest.data != nil {
+            requestString += "*** Request contains Multipart data (not displaying) ***"
+        } else if let fileURL = preparedRequest.tempFile {
+            requestString += "Request contains Multipart data stored in a file: \(fileURL.path)"
         }
         
         requestString += "\n----------------------------------------\n"

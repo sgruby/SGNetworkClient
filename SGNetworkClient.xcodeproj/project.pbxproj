@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D22591BA2639C30A00C50337 /* MultipartBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = D22591B82639C30A00C50337 /* MultipartBody.swift */; };
+		D22591BB2639C30A00C50337 /* MultipartBoundary.swift in Sources */ = {isa = PBXBuildFile; fileRef = D22591B92639C30A00C50337 /* MultipartBoundary.swift */; };
 		D29094DB26371EDD00FE0EBC /* SGNetworkClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D29094D126371EDD00FE0EBC /* SGNetworkClient.framework */; };
 		D29094E026371EDD00FE0EBC /* SGNetworkClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29094DF26371EDD00FE0EBC /* SGNetworkClientTests.swift */; };
 		D29094E226371EDD00FE0EBC /* SGNetworkClient.h in Headers */ = {isa = PBXBuildFile; fileRef = D29094D426371EDD00FE0EBC /* SGNetworkClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -22,7 +24,7 @@
 		D290951426371F9A00FE0EBC /* NetworkClient+Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = D290950726371F9A00FE0EBC /* NetworkClient+Authentication.swift */; };
 		D290951526371F9A00FE0EBC /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D290950826371F9A00FE0EBC /* NetworkRequest.swift */; };
 		D290951626371F9A00FE0EBC /* NetworkClient+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = D290950926371F9A00FE0EBC /* NetworkClient+Logging.swift */; };
-		D290951726371F9A00FE0EBC /* MIMEData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D290950A26371F9A00FE0EBC /* MIMEData.swift */; };
+		D290951726371F9A00FE0EBC /* MultipartPart.swift in Sources */ = {isa = PBXBuildFile; fileRef = D290950A26371F9A00FE0EBC /* MultipartPart.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +38,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D22591B82639C30A00C50337 /* MultipartBody.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MultipartBody.swift; path = Source/MultipartBody.swift; sourceTree = "<group>"; };
+		D22591B92639C30A00C50337 /* MultipartBoundary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MultipartBoundary.swift; path = Source/MultipartBoundary.swift; sourceTree = "<group>"; };
 		D24BB76C26376F2F00F041E5 /* Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shared.xcconfig; sourceTree = "<group>"; };
 		D24BB76D26376F2F00F041E5 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		D24BB76E26376F2F00F041E5 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
@@ -57,7 +61,7 @@
 		D290950726371F9A00FE0EBC /* NetworkClient+Authentication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "NetworkClient+Authentication.swift"; path = "Source/NetworkClient+Authentication.swift"; sourceTree = "<group>"; };
 		D290950826371F9A00FE0EBC /* NetworkRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NetworkRequest.swift; path = Source/NetworkRequest.swift; sourceTree = "<group>"; };
 		D290950926371F9A00FE0EBC /* NetworkClient+Logging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "NetworkClient+Logging.swift"; path = "Source/NetworkClient+Logging.swift"; sourceTree = "<group>"; };
-		D290950A26371F9A00FE0EBC /* MIMEData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MIMEData.swift; path = Source/MIMEData.swift; sourceTree = "<group>"; };
+		D290950A26371F9A00FE0EBC /* MultipartPart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MultipartPart.swift; path = Source/MultipartPart.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,8 +117,11 @@
 				D24BB76B26376F2F00F041E5 /* xcconfig */,
 				D290950426371F9A00FE0EBC /* Error+NetworkExtensions.swift */,
 				D290950626371F9A00FE0EBC /* HTTPStructures.swift */,
+				D29094D526371EDD00FE0EBC /* Info.plist */,
 				D29094FF26371F9A00FE0EBC /* JSONKeyDecoder.swift */,
-				D290950A26371F9A00FE0EBC /* MIMEData.swift */,
+				D22591B82639C30A00C50337 /* MultipartBody.swift */,
+				D22591B92639C30A00C50337 /* MultipartBoundary.swift */,
+				D290950A26371F9A00FE0EBC /* MultipartPart.swift */,
 				D290950126371F9A00FE0EBC /* NetworkClient.swift */,
 				D290950726371F9A00FE0EBC /* NetworkClient+Authentication.swift */,
 				D290950926371F9A00FE0EBC /* NetworkClient+Logging.swift */,
@@ -125,7 +132,6 @@
 				D290950826371F9A00FE0EBC /* NetworkRequest.swift */,
 				D29094FE26371F9A00FE0EBC /* NetworkTask.swift */,
 				D29094D426371EDD00FE0EBC /* SGNetworkClient.h */,
-				D29094D526371EDD00FE0EBC /* Info.plist */,
 			);
 			path = SGNetworkClient;
 			sourceTree = "<group>";
@@ -258,8 +264,10 @@
 				D290950E26371F9A00FE0EBC /* NetworkClient.swift in Sources */,
 				D290951426371F9A00FE0EBC /* NetworkClient+Authentication.swift in Sources */,
 				D290951526371F9A00FE0EBC /* NetworkRequest.swift in Sources */,
+				D22591BB2639C30A00C50337 /* MultipartBoundary.swift in Sources */,
 				D290951026371F9A00FE0EBC /* NetworkClient+SendRequests.swift in Sources */,
-				D290951726371F9A00FE0EBC /* MIMEData.swift in Sources */,
+				D290951726371F9A00FE0EBC /* MultipartPart.swift in Sources */,
+				D22591BA2639C30A00C50337 /* MultipartBody.swift in Sources */,
 				D290950F26371F9A00FE0EBC /* NetworkClient+Responses.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
