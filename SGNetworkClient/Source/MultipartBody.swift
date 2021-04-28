@@ -83,6 +83,9 @@ public class MultipartBody {
         if let mimeType = part.mimeType {
             let contentType = "Content-Type: \(mimeType.string())\r\n\r\n"
             data.append(contentType.data(using: String.Encoding.utf8) ?? Data())
+        } else {
+            let crlf = "\r\n"
+            data.append(crlf.data(using: String.Encoding.utf8) ?? Data())
         }
         
         return data
