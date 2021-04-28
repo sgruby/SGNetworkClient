@@ -132,12 +132,16 @@ public class MultipartBody {
         while inputStream.hasBytesAvailable {
             let bytesRead = inputStream.read(&buffer, maxLength: streamBufferSize)
 
-
             if bytesRead > 0 {
                 var bytesToWrite = bytesRead
+                var writeBuffer = buffer
                 while bytesToWrite > 0, outputStream.hasSpaceAvailable {
-                    let bytesWritten = outputStream.write(buffer, maxLength: bytesToWrite)
+                    let bytesWritten = outputStream.write(writeBuffer, maxLength: bytesToWrite)
                     bytesToWrite -= bytesWritten
+                    
+                    if bytesToWrite > 0 {
+                        writeBuffer = Array(buffer[bytesWritten..<writeBuffer.count])
+                    }
                 }
             } else {
                 break
