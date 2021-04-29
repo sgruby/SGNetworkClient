@@ -104,7 +104,11 @@ public class NetworkRequest {
             urlRequest.timeoutInterval = timeoutInterval
         }
 
-        headers?.forEach { urlRequest.addValue($0.value, forHTTPHeaderField: $0.field) }
+        // Add the headers from the base client
+        // These may be overwritten
+        client.additionalHeaders.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.field) }
+
+        headers?.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.field) }
 
         var uploadData: Data?
         var tempFileURL: URL?
@@ -131,9 +135,9 @@ public class NetworkRequest {
                 extraHeaders.append(HTTPHeader(field: "Content-Length", value: "\(contentLength)"))
             }
 
-            extraHeaders.forEach { urlRequest.addValue($0.value, forHTTPHeaderField: $0.field) }
+            extraHeaders.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.field) }
         }
-
+        
         return NetworkPreparedRequest(data: uploadData, tempFile: tempFileURL, request: urlRequest)
     }
     

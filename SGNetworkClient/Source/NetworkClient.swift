@@ -19,22 +19,19 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     internal let lockingQueue: DispatchQueue = DispatchQueue.init(label: "com.grubysolutions.networkclient.lock")
 
     public var baseURL: URL
-    internal var urlSessionConfiguration: URLSessionConfiguration {
-        // if the configuration changes, we need to update the session
-        didSet {
-            setupURLSession()
-        }
-    }
+    internal var urlSessionConfiguration: URLSessionConfiguration
     
     public var responseLogger: ((String) -> Void)?
     public var requestLogger: ((String) -> Void)?
+    public var backgroundDidFinishEventsHandler: ((URLSession) -> Void)?
     public var logRequests: Bool = false
     public var logResponses: Bool = false
     public var completionQueue: DispatchQueue = .main
+    internal var additionalHeaders: [HTTPHeader] = []
 
     public var userAgent: String? {
         get {
-            (urlSessionConfiguration.httpAdditionalHeaders?.first {($0.key as? String) == "User-Agent"})?.value as? String
+            (additionalHeaders.first {$0.field == "User-Agent"})?.value
         }
         
         set {
@@ -53,38 +50,21 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
                           delegate: self,
                           delegateQueue: nil)
     } ()
-    private func setupURLSession() {
-        if urlSession != URLSession.shared {
-            urlSession.invalidateAndCancel()
-        }
-        
-        urlSession = URLSession(configuration: urlSessionConfiguration,
-                                delegate: self,
-                                delegateQueue: nil)
-    }
     
     public init(baseURL: URL, configuration: URLSessionConfiguration? = nil) {
         self.baseURL = baseURL
         timeoutInterval = 120
-        let nwConfiguration = configuration ?? URLSessionConfiguration.default
-        urlSessionConfiguration = NetworkClient.addHTTP(header: NetworkClient.defaultUserAgent, for: "User-Agent", configuration: nwConfiguration)
+        urlSessionConfiguration = configuration ?? URLSessionConfiguration.default
+        super.init()
+        addHTTP(header: NetworkClient.defaultUserAgent, for: "User-Agent")
     }
 
     public func addHTTP(header: String, for key: String) {
-        urlSessionConfiguration = NetworkClient.addHTTP(header: header, for: key, configuration: urlSessionConfiguration)
-    }
-    
-    static private func addHTTP(header: String?, for key: String, configuration: URLSessionConfiguration) ->  URLSessionConfiguration {
-        let config = configuration
-        var headers = config.httpAdditionalHeaders ?? [:]
-        headers[key] = header
-        config.httpAdditionalHeaders = headers
-        
-        return config
+        additionalHeaders.append(HTTPHeader(field: key, value: header))
     }
 
     public func removeHTTPHeaderFor(key: String) {
-        urlSessionConfiguration = NetworkClient.addHTTP(header: nil, for: key, configuration: urlSessionConfiguration)
+        additionalHeaders.removeAll {$0.field == key}
     }
     
     // Reset everything
@@ -149,6 +129,10 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     public func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
         guard let progressTask = networkTask(for: task) else {return}
         progressTask.networkRequest.updateUploadProgress(totalBytesSent: totalBytesSent, totalBytesExpectedToSend: totalBytesExpectedToSend)
+    }
+    
+    public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        backgroundDidFinishEventsHandler?(session)
     }
     
     // Some stupid servers return 200 responses, but embed the errors in the header
