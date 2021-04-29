@@ -81,12 +81,22 @@ extension NetworkClient {
         if let uploadData = preparedURLRequest.data {
             task = urlSession.uploadTask(with: preparedURLRequest.request, from: uploadData, completionHandler: taskHandler)
         } else if let uploadFileURL = preparedURLRequest.tempFile {
+            var expectedBytesToSend: Int64 = 0
+            if let attributes = try? FileManager.default.attributesOfItem(atPath: uploadFileURL.path), let size = attributes[.size] as? NSNumber {
+                expectedBytesToSend = size.int64Value
+            }
+            
             if handler != nil {
                 task = urlSession.uploadTask(with: preparedURLRequest.request, fromFile: uploadFileURL, completionHandler: taskHandler)
             } else {
-                print("no handler for upload")
                 task = urlSession.uploadTask(with: preparedURLRequest.request, fromFile: uploadFileURL)
             }
+
+            if expectedBytesToSend > 0 {
+                task?.countOfBytesClientExpectsToSend = expectedBytesToSend
+            }
+            
+                
         } else {
             task = urlSession.dataTask(with: preparedURLRequest.request, completionHandler: taskHandler)
         }
@@ -97,17 +107,12 @@ extension NetworkClient {
         requestNetworkTask.dataTask = sessionTask
         requestNetworkTask.tempFileURL = preparedURLRequest.tempFile
         
-        // Add guards here
-        
-        sessionTask.resume()
         lockingQueue.async {[weak self] in
             guard let self = self else {return}
-            print("\(self) adding: \(requestNetworkTask.dataTask.taskIdentifier)")
             self.networkTasks.insert(requestNetworkTask)
-            self.networkTasks.forEach { task in
-                print("task identifier: \(task.dataTask.taskIdentifier)")
-            }
         }
+
+        sessionTask.resume()
         return requestNetworkTask
     }
     }
