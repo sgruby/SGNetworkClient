@@ -48,9 +48,16 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     
     public var timeoutInterval: TimeInterval = 0
     public var retryCount: Int = 0
-    internal var urlSession: URLSession = .shared // This is a placeholder until init
-
+    internal lazy var urlSession: URLSession = {
+        return URLSession(configuration: urlSessionConfiguration,
+                          delegate: self,
+                          delegateQueue: nil)
+    } ()
     private func setupURLSession() {
+        if urlSession != URLSession.shared {
+            urlSession.invalidateAndCancel()
+        }
+        
         urlSession = URLSession(configuration: urlSessionConfiguration,
                                 delegate: self,
                                 delegateQueue: nil)
@@ -59,27 +66,25 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     public init(baseURL: URL, configuration: URLSessionConfiguration? = nil) {
         self.baseURL = baseURL
         timeoutInterval = 120
-        urlSessionConfiguration = configuration ?? URLSessionConfiguration.default
-        super.init()
-        
-        userAgent = NetworkClient.defaultUserAgent
-        setupURLSession()
+        let nwConfiguration = configuration ?? URLSessionConfiguration.default
+        urlSessionConfiguration = NetworkClient.addHTTP(header: NetworkClient.defaultUserAgent, for: "User-Agent", configuration: nwConfiguration)
+    }
+
+    public func addHTTP(header: String, for key: String) {
+        urlSessionConfiguration = NetworkClient.addHTTP(header: header, for: key, configuration: urlSessionConfiguration)
     }
     
-    public func addHTTP(header: String, for key: String) {
-        let config = urlSessionConfiguration
+    static private func addHTTP(header: String?, for key: String, configuration: URLSessionConfiguration) ->  URLSessionConfiguration {
+        let config = configuration
         var headers = config.httpAdditionalHeaders ?? [:]
         headers[key] = header
         config.httpAdditionalHeaders = headers
-        urlSessionConfiguration = config
+        
+        return config
     }
 
     public func removeHTTPHeaderFor(key: String) {
-        let config = urlSessionConfiguration
-        var headers = config.httpAdditionalHeaders ?? [:]
-        headers[key] = nil
-        config.httpAdditionalHeaders = headers
-        urlSessionConfiguration = config
+        urlSessionConfiguration = NetworkClient.addHTTP(header: nil, for: key, configuration: urlSessionConfiguration)
     }
     
     // Reset everything
@@ -126,10 +131,24 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     
     // Not called when the call is made with a closure
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard let completedTask = networkTask(for: task) else {return}
+        if completedTask.networkRequest.logResponse == true && self.logResponses == true {
+            self.log(urlResponse: task.response, data: nil, error: error)
+        }
+
+        completedTask.networkRequest.requestCompleted(response: task.response, error: error)
+
+        // Remove the request from our list
+        if let tempFileURL = completedTask.tempFileURL {
+            try? FileManager.default.removeItem(at: tempFileURL)
+        }
+
+        self.removeTask(completedTask)
     }
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
-        networkTask(for: task)?.networkRequest.updateUploadProgress(totalBytesSent: totalBytesSent, totalBytesExpectedToSend: totalBytesExpectedToSend)
+        guard let progressTask = networkTask(for: task) else {return}
+        progressTask.networkRequest.updateUploadProgress(totalBytesSent: totalBytesSent, totalBytesExpectedToSend: totalBytesExpectedToSend)
     }
     
     // Some stupid servers return 200 responses, but embed the errors in the header
