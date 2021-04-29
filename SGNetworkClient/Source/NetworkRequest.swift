@@ -16,6 +16,7 @@ internal struct NetworkPreparedRequest {
 
 public class NetworkRequest {
     public typealias ProgressHandler = (Progress) -> Void
+    public typealias RequestCompletedHandler = (URLResponse?, Error?) -> Void
 
     let method: HTTPMethod
     let path: String
@@ -38,6 +39,7 @@ public class NetworkRequest {
     let uuid: UUID = UUID()
 
     public var uploadProgressHandler: (handler: ProgressHandler, queue: DispatchQueue)?
+    public var requestCompletedHandler: (handler: RequestCompletedHandler, queue: DispatchQueue)?
     let uploadProgress = Progress(totalUnitCount: 0)
 
     public init(method: HTTPMethod = .get, path: String, retryCount: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
@@ -70,7 +72,7 @@ public class NetworkRequest {
         self.timeoutInterval = 0
     }
 
-    func prepareURLRequest(with client: NetworkClient) -> NetworkPreparedRequest? {
+    func prepareURLRequest(with client: NetworkClient, alwaysWriteToFile: Bool = false) -> NetworkPreparedRequest? {
         var url: URL = client.baseURL
         // Protect against an extra trailing or leading slash
         if url.lastPathComponent.hasSuffix("/") == true && path.hasPrefix("/") {
@@ -113,7 +115,7 @@ public class NetworkRequest {
             extraHeaders.append(HTTPHeader(field: "Content-Type", value: "multipart/form-data; boundary=\(multipartBody.boundary)"))
 
             // Over 10 MB, write to a file to be more memory efficient
-            if multipartBody.contentLength < 10_000_000 {
+            if multipartBody.contentLength < 10_000_000 && alwaysWriteToFile == false {
                 if let data = prepareUploadData() {
                     var extraHeaders: [HTTPHeader] = []
                     extraHeaders.append(HTTPHeader(field: "Content-Length", value: "\(data.count)"))
@@ -145,5 +147,9 @@ public class NetworkRequest {
         uploadProgress.totalUnitCount = totalBytesExpectedToSend
         uploadProgress.completedUnitCount = totalBytesSent
         uploadProgressHandler?.queue.async { self.uploadProgressHandler?.handler(self.uploadProgress) }
+    }
+
+    internal func requestCompleted(response: URLResponse?, error: Error?) {
+        requestCompletedHandler?.queue.async {self.requestCompletedHandler?.handler(response, error)}
     }
 }

@@ -42,7 +42,7 @@ extension NetworkClient {
     public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         let completionQueue = completionQueue ?? self.completionQueue
         
-        guard let preparedURLRequest = request.prepareURLRequest(with: self) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil)); return nil}
+        guard let preparedURLRequest = request.prepareURLRequest(with: self, alwaysWriteToFile: handler == nil) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil)); return nil}
 
         // The individual request can turn off logging
         if request.logRequest == true && logRequests == true {
@@ -81,7 +81,12 @@ extension NetworkClient {
         if let uploadData = preparedURLRequest.data {
             task = urlSession.uploadTask(with: preparedURLRequest.request, from: uploadData, completionHandler: taskHandler)
         } else if let uploadFileURL = preparedURLRequest.tempFile {
-            task = urlSession.uploadTask(with: preparedURLRequest.request, fromFile: uploadFileURL, completionHandler: taskHandler)
+            if handler != nil {
+                task = urlSession.uploadTask(with: preparedURLRequest.request, fromFile: uploadFileURL, completionHandler: taskHandler)
+            } else {
+                print("no handler for upload")
+                task = urlSession.uploadTask(with: preparedURLRequest.request, fromFile: uploadFileURL)
+            }
         } else {
             task = urlSession.dataTask(with: preparedURLRequest.request, completionHandler: taskHandler)
         }
@@ -94,12 +99,15 @@ extension NetworkClient {
         
         // Add guards here
         
+        sessionTask.resume()
         lockingQueue.async {[weak self] in
             guard let self = self else {return}
+            print("\(self) adding: \(requestNetworkTask.dataTask.taskIdentifier)")
             self.networkTasks.insert(requestNetworkTask)
+            self.networkTasks.forEach { task in
+                print("task identifier: \(task.dataTask.taskIdentifier)")
+            }
         }
-
-        sessionTask.resume()
         return requestNetworkTask
     }
     }
