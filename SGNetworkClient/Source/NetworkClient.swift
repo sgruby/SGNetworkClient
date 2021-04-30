@@ -2,12 +2,8 @@
 //  NetworkClient.swift
 //  NetworkClient
 //
-//  Created by Scott Gruby on 4/24/21.
-//
-
-// TODO
-
-// Upload file
+//  Copyright (c) 2021 Scott Gruby. All rights reserved.
+//  Licensed under the MIT License.
 
 import Foundation
 

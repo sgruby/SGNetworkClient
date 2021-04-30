@@ -2,8 +2,8 @@
 //  MultipartBody.swift
 //  SGNetworkClient
 //
-//  Created by Scott Gruby on 4/28/21.
-//
+//  Copyright (c) 2021 Scott Gruby. All rights reserved.
+//  Licensed under the MIT License.
 
 import Foundation
 

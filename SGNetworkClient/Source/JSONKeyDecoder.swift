@@ -2,9 +2,8 @@
 //  JSONKeyDecoder.swift
 //  RetailX
 //
-//  Created by Scott Gruby on 3/9/21.
-//  Copyright © 2021 The Reformation. All rights reserved.
-//
+//  Copyright (c) 2021 Scott Gruby. All rights reserved.
+//  Licensed under the MIT License.
 
 import Foundation
 

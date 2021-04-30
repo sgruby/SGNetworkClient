@@ -2,8 +2,8 @@
 //  Error+NetworkExtensions.swift
 //  NetworkClient
 //
-//  Created by Scott Gruby on 4/26/21.
-//
+//  Copyright (c) 2021 Scott Gruby. All rights reserved.
+//  Licensed under the MIT License.
 
 import Foundation
 
