@@ -17,7 +17,7 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     public var baseURL: URL
     internal var urlSessionConfiguration: URLSessionConfiguration
     
-    public var responseLogger: ((String) -> Void)?
+    public var responseLogger: ((String, Bool) -> Void)?
     public var requestLogger: ((String) -> Void)?
     public var backgroundDidFinishEventsHandler: ((URLSession) -> Void)?
     public var logRequests: Bool = false

@@ -54,8 +54,13 @@ extension NetworkClient {
 
     internal func log(urlResponse: URLResponse?, data: Data?, error: Error?) {
         var responseString = "\n---------------------- Response ----------------------\n"
-
+        var success: Bool = false
+        
         if let response = urlResponse as? HTTPURLResponse {
+            if response.statusCode / 200 == 1 {
+                success = true
+            }
+            
             responseString += "\(response.statusCode) \(HTTPURLResponse.localizedString(forStatusCode: response.statusCode))\n"
             if let url = response.url {
                 responseString += url.absoluteString + "\n\n"
@@ -88,6 +93,6 @@ extension NetworkClient {
         }
 
         responseString += "\n----------------------------------------\n"
-        responseLogger?(responseString)
+        responseLogger?(responseString, success)
     }
 }
