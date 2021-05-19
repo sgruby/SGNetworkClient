@@ -8,12 +8,20 @@
 import Foundation
 
 extension NetworkClient {
-    // This takes a method and path with no body and returns a Data object in the completion handler
+    // This takes a method and path with no body and returns a dictionary
     @discardableResult
-    public func perform(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
+    public func perform(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
         request.retryCount = retryCount
         return perform(request: request, completionHandler: handler)
+    }
+
+    // This takes a method and path with no body and returns a Data object in the completion handler
+    @discardableResult
+    public func performAndReturnData(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
+        let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
+        request.retryCount = retryCount
+        return performAndReturnData(request: request, completionHandler: handler)
     }
 
     @discardableResult
@@ -32,7 +40,7 @@ extension NetworkClient {
     
     // This takes a request with no body and returns a Data object in the completion handler
     @discardableResult
-    public func perform(request: NetworkRequest, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
+    public func performAndReturnData(request: NetworkRequest, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
         return perform(request: request, resultType: Data.self, completionHandler: handler)
     }
 
@@ -41,14 +49,26 @@ extension NetworkClient {
     @discardableResult
     public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         let completionQueue = completionQueue ?? self.completionQueue
-        
+        let taskHandler = parseableTaskHandler(request: request, resultType: resultType, resultKey: resultKey, completionQueue: completionQueue, completionHandler: handler)
+
         guard let preparedURLRequest = request.prepareURLRequest(with: self, alwaysWriteToFile: handler == nil) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil)); return nil}
 
-        // The individual request can turn off logging
-        if request.logRequest == true && logRequests == true {
-            log(preparedRequest: preparedURLRequest)
-        }
+        return createNetworkTask(request: request, preparedURLRequest: preparedURLRequest, hasCompletionHandler: handler != nil, taskHandler: taskHandler)
+    }
 
+    // This takes a request and returns a JSON parsed object in the completion handler.
+    @discardableResult
+    public func perform(request: NetworkRequest, completionQueue: DispatchQueue? = nil, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> NetworkTask? {
+        let completionQueue = completionQueue ?? self.completionQueue
+        let taskHandler = dictionaryTaskHandler(request: request, completionQueue: completionQueue, completionHandler: handler)
+
+        guard let preparedURLRequest = request.prepareURLRequest(with: self, alwaysWriteToFile: handler == nil) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil)); return nil}
+
+        return createNetworkTask(request: request, preparedURLRequest: preparedURLRequest, hasCompletionHandler: handler != nil, taskHandler: taskHandler)
+    }
+
+    // Internal method that creates a handler that decodes an object
+    private func parseableTaskHandler<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> ((Data?, URLResponse?, Error?) -> Void) {
         let taskHandler: (Data?, URLResponse?, Error?) -> Void = {[weak self] (data, urlResponse, error) in
             guard let self = self else {return}
             
@@ -76,7 +96,50 @@ extension NetworkClient {
                 }
             }
         }
-        
+
+        return taskHandler
+    }
+
+    // Internal task handler that does a JSON serialization without decoding the data
+    private func dictionaryTaskHandler(request: NetworkRequest, completionQueue: DispatchQueue, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> ((Data?, URLResponse?, Error?) -> Void) {
+        let taskHandler: (Data?, URLResponse?, Error?) -> Void = {[weak self] (data, urlResponse, error) in
+            guard let self = self else {return}
+            
+            if request.logResponse == true && self.logResponses == true {
+                self.log(urlResponse: urlResponse, data: data, error: error)
+            }
+            
+            let response = NetworkClient.handleResponse(data: data, urlResponse: urlResponse, error: error)
+            
+            if self.shouldRetry(request: request, error: error) == true {
+                let newRequest = request
+                newRequest.retryCount = request.retryCount - 1
+                //self.perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
+            } else {
+                completionQueue.async {
+                    handler?(response)
+                }
+
+                // Remove the request from our list
+                if let networkTask = self.networkTask(for: request.uuid) {
+                    if let tempFileURL = networkTask.tempFileURL {
+                        try? FileManager.default.removeItem(at: tempFileURL)
+                    }
+                    self.removeTask(networkTask)
+                }
+            }
+        }
+
+        return taskHandler
+    }
+
+    // Creates and starts the network task
+    private func createNetworkTask(request: NetworkRequest, preparedURLRequest: NetworkPreparedRequest, hasCompletionHandler: Bool, taskHandler: @escaping ((Data?, URLResponse?, Error?) -> Void)) -> NetworkTask? {
+        // The individual request can turn off logging
+        if request.logRequest == true && logRequests == true {
+            log(preparedRequest: preparedURLRequest)
+        }
+
         var task: URLSessionTask?
         if let uploadData = preparedURLRequest.data {
             task = urlSession.uploadTask(with: preparedURLRequest.request, from: uploadData, completionHandler: taskHandler)
@@ -86,7 +149,7 @@ extension NetworkClient {
                 expectedBytesToSend = size.int64Value
             }
             
-            if handler != nil {
+            if hasCompletionHandler == true {
                 task = urlSession.uploadTask(with: preparedURLRequest.request, fromFile: uploadFileURL, completionHandler: taskHandler)
             } else {
                 task = urlSession.uploadTask(with: preparedURLRequest.request, fromFile: uploadFileURL)
@@ -115,4 +178,4 @@ extension NetworkClient {
         sessionTask.resume()
         return requestNetworkTask
     }
-    }
+}

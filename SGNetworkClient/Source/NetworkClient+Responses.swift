@@ -48,6 +48,45 @@ extension NetworkClient {
         return NetworkResponse(error: returnError, httpResponse: urlResponse as? HTTPURLResponse, result: result)
     }
 
+    static func handleResponse(data: Data?, urlResponse: URLResponse?, error: Error?) -> (NetworkResponse<[String: Any]>) {
+        var returnError: Error?
+        var result: [String: Any]?
+        if let error = error as? URLError, case URLError.cancelled = error {
+            returnError = NetworkError.cancelled
+        } else if let error = error {
+            returnError = error
+        } else if let httpResponse = urlResponse as? HTTPURLResponse {
+            if httpResponse.statusCode / 200 == 1 {
+                if let headerError = headerError(response: httpResponse) {
+                    returnError = headerError
+                } else {
+                    if httpResponse.statusCode == 204 {
+                        result =  [:]
+                    } else if let data = data {
+                        // Not sure why we'd get an empty body, but protect against it
+                        if data.isEmpty == true {
+                            result = [:]
+                        }
+
+                        result = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] ?? [:]
+                    } else {
+                        result = [:]
+                    }
+                }
+            } else {
+                switch httpResponse.statusCode {
+                case 401:
+                    returnError = NetworkError.unauthorized(response: httpResponse, body: data)
+                    
+                default:
+                    returnError = NetworkError.failedResponse(statusCode: httpResponse.statusCode, response: httpResponse, body: data)
+                }
+            }
+        }
+        
+        return NetworkResponse(error: returnError, httpResponse: urlResponse as? HTTPURLResponse, result: result)
+    }
+
     internal func shouldRetry(request: NetworkRequest, error: Error?) -> Bool {
         if let error = error, error.isTransientNetworkingError() || error.is503ServiceUnavailable(), request.retryCount > 0 {
             return true
