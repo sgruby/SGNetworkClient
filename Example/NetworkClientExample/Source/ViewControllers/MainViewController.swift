@@ -24,7 +24,7 @@ class MainViewController: UIViewController {
                 print(string)
             }
 
-            client?.responseLogger = {(string) in
+            client?.responseLogger = {(string, _) in
                 print(string)
             }
         
