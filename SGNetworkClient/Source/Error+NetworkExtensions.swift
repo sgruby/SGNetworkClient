@@ -8,7 +8,7 @@
 import Foundation
 
 // Borrowed from PMHTTP
-internal extension Error {
+public extension Error {
     // Returns `true` if `self` is a transient networking error
     func isTransientNetworkingError() -> Bool {
         switch self {
@@ -44,6 +44,20 @@ internal extension Error {
         case let error as NetworkError:
             switch error {
             case .failedResponse(statusCode: 503, response: _, body: _):
+                return true
+            default:
+                return false
+            }
+        default:
+            return false
+        }
+    }
+
+    func isCancelled() -> Bool {
+        switch self {
+        case let error as NetworkError:
+            switch error {
+            case .cancelled:
                 return true
             default:
                 return false
