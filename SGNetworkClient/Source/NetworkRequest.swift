@@ -29,7 +29,7 @@ public class NetworkRequest {
 
     public var queryItems: [URLQueryItem]?
     public var queryItemsPercentEncoded: Bool = false
-    public var headers: [HTTPHeader]?
+    var headers: [HTTPHeader] = []
     let body: Data?
     public var timeoutInterval: TimeInterval
     let logRequest: Bool
@@ -71,6 +71,10 @@ public class NetworkRequest {
         }
         self.timeoutInterval = 0
     }
+    
+    public func add(header: String, for key: String) {
+        headers.append(HTTPHeader(field: key, value: header))
+    }
 
     func prepareURLRequest(with client: NetworkClient, alwaysWriteToFile: Bool = false) -> NetworkPreparedRequest? {
         var url: URL = client.baseURL
@@ -108,7 +112,7 @@ public class NetworkRequest {
         // These may be overwritten
         client.additionalHeaders.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.field) }
 
-        headers?.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.field) }
+        headers.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.field) }
 
         var uploadData: Data?
         var tempFileURL: URL?
