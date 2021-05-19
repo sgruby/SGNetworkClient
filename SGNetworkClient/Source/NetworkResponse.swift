@@ -11,4 +11,5 @@ public struct NetworkResponse<T> {
     public let error: Error?
     public let httpResponse: HTTPURLResponse?
     public let result: T?
+    public let task: NetworkTask?
 }

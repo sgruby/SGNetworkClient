@@ -51,7 +51,7 @@ extension NetworkClient {
         let completionQueue = completionQueue ?? self.completionQueue
         let taskHandler = parseableTaskHandler(request: request, resultType: resultType, resultKey: resultKey, completionQueue: completionQueue, completionHandler: handler)
 
-        guard let preparedURLRequest = request.prepareURLRequest(with: self, alwaysWriteToFile: handler == nil) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil)); return nil}
+        guard let preparedURLRequest = request.prepareURLRequest(with: self, alwaysWriteToFile: handler == nil) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil, task: nil)); return nil}
 
         return createNetworkTask(request: request, preparedURLRequest: preparedURLRequest, hasCompletionHandler: handler != nil, taskHandler: taskHandler)
     }
@@ -62,7 +62,7 @@ extension NetworkClient {
         let completionQueue = completionQueue ?? self.completionQueue
         let taskHandler = dictionaryTaskHandler(request: request, completionQueue: completionQueue, completionHandler: handler)
 
-        guard let preparedURLRequest = request.prepareURLRequest(with: self, alwaysWriteToFile: handler == nil) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil)); return nil}
+        guard let preparedURLRequest = request.prepareURLRequest(with: self, alwaysWriteToFile: handler == nil) else {handler?(NetworkResponse(error: NetworkError.invalidURL, httpResponse: nil, result: nil, task: nil)); return nil}
 
         return createNetworkTask(request: request, preparedURLRequest: preparedURLRequest, hasCompletionHandler: handler != nil, taskHandler: taskHandler)
     }
@@ -76,23 +76,28 @@ extension NetworkClient {
                 self.log(urlResponse: urlResponse, data: data, error: error)
             }
             
-            let response = NetworkClient.handleResponse(resultType: resultType, resultKey: resultKey, data: data, urlResponse: urlResponse, error: error)
-            
             if self.shouldRetry(request: request, error: error) == true {
                 let newRequest = request
                 newRequest.retryCount = request.retryCount - 1
                 self.perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
             } else {
+                // Remove the request from our list
+                let networkTask = self.networkTask(for: request.uuid)
+                if let tempFileURL = networkTask?.tempFileURL {
+                    try? FileManager.default.removeItem(at: tempFileURL)
+                }
+                
+                self.removeTask(networkTask)
+
+                let response = NetworkClient.handleResponse(resultType: resultType,
+                                                            resultKey: resultKey,
+                                                            data: data,
+                                                            urlResponse: urlResponse,
+                                                            error: error,
+                                                            task: networkTask)
+
                 completionQueue.async {
                     handler?(response)
-                }
-
-                // Remove the request from our list
-                if let networkTask = self.networkTask(for: request.uuid) {
-                    if let tempFileURL = networkTask.tempFileURL {
-                        try? FileManager.default.removeItem(at: tempFileURL)
-                    }
-                    self.removeTask(networkTask)
                 }
             }
         }
@@ -109,23 +114,23 @@ extension NetworkClient {
                 self.log(urlResponse: urlResponse, data: data, error: error)
             }
             
-            let response = NetworkClient.handleResponse(data: data, urlResponse: urlResponse, error: error)
-            
             if self.shouldRetry(request: request, error: error) == true {
                 let newRequest = request
                 newRequest.retryCount = request.retryCount - 1
                 //self.perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
             } else {
+                // Remove the request from our list
+                let networkTask = self.networkTask(for: request.uuid)
+                if let tempFileURL = networkTask?.tempFileURL {
+                    try? FileManager.default.removeItem(at: tempFileURL)
+                }
+                
+                self.removeTask(networkTask)
+
+                let response = NetworkClient.handleResponse(data: data, urlResponse: urlResponse, error: error, task: networkTask)
+
                 completionQueue.async {
                     handler?(response)
-                }
-
-                // Remove the request from our list
-                if let networkTask = self.networkTask(for: request.uuid) {
-                    if let tempFileURL = networkTask.tempFileURL {
-                        try? FileManager.default.removeItem(at: tempFileURL)
-                    }
-                    self.removeTask(networkTask)
                 }
             }
         }

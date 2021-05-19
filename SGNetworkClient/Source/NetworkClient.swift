@@ -98,7 +98,8 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
         return result
     }
     
-    func removeTask(_ task: NetworkTask) {
+    func removeTask(_ task: NetworkTask?) {
+        guard let task = task else {return}
         lockingQueue.async {[weak self] in
             guard let self = self else {return}
             self.networkTasks.remove(task)
