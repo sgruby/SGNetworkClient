@@ -8,8 +8,8 @@
 import Foundation
 
 struct Mock: Codable {
-    let userID: Int?
-    let id: Int?
+    let userID: Int
+    let id: Int
     let title: String?
     let completed: Bool?
 
