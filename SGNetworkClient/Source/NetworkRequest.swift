@@ -86,17 +86,25 @@ public class NetworkRequest {
 
     func prepareURLRequest(with client: NetworkClient, alwaysWriteToFile: Bool = false) -> NetworkPreparedRequest? {
         var url: URL = client.baseURL
-        // Protect against an extra trailing or leading slash
-        if url.lastPathComponent.hasSuffix("/") == true && path.hasPrefix("/") {
-            url.appendPathComponent(String(path.dropFirst()))
-        } else {
-            url.appendPathComponent(path)
-        }
-        
+
         // See if this is a full URL
         if let pathURL = URL(string: path), path.lowercased().hasPrefix("http") {
             url = pathURL
+        } else if url.lastPathComponent.hasSuffix("/") == true && path.hasPrefix("/") {
+            url.appendPathComponent(String(path.dropFirst()))
+        } else {
+            if path.hasPrefix("/") == true {
+                // Ignore the path in the base URL
+                var components = URLComponents(url: url, resolvingAgainstBaseURL: true)
+                components?.path = path
+                if let componentURL = components?.url {
+                    url = componentURL
+                }
+            } else {
+                url.appendPathComponent(path)
+            }
         }
+        
         
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true)
         if queryItemsPercentEncoded == true {
