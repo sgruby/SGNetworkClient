@@ -40,7 +40,7 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     }
     
     public var timeoutInterval: TimeInterval = 0
-    public var retryCount: Int = 0
+    public var maxNumberRetries: Int = 0
     internal lazy var urlSession: URLSession = {
         return URLSession(configuration: urlSessionConfiguration,
                           delegate: self,

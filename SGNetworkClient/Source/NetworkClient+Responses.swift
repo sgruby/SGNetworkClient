@@ -88,7 +88,7 @@ extension NetworkClient {
     }
 
     internal func shouldRetry(request: NetworkRequest, error: Error?) -> Bool {
-        if let error = error, error.isTransientNetworkingError() || error.is503ServiceUnavailable(), request.retryCount > 0 {
+        if let error = error, error.isTransientNetworkingError() || error.is503ServiceUnavailable(), request.currentRetryCount > 1 {
             return true
         }
         return false
