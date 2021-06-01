@@ -12,7 +12,6 @@ extension NetworkClient {
     @discardableResult
     public func perform(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
-        request.maxAttempts = maxAttempts
         return perform(request: request, completionHandler: handler)
     }
 
@@ -20,7 +19,6 @@ extension NetworkClient {
     @discardableResult
     public func performAndReturnData(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
-        request.maxAttempts = maxAttempts
         return performAndReturnData(request: request, completionHandler: handler)
     }
 
@@ -34,21 +32,12 @@ extension NetworkClient {
     @discardableResult
     public func perform<T: Decodable, Body: Encodable>(method: HTTPMethod = .get, for path: String, body: Body, resultType: T.Type, resultKey: String? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, body: body, logRequest: logRequests, logResponse: logResponses)
-        request.maxAttempts = maxAttempts
         return perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
     }
     
     // This takes a request with no body and returns a Data object in the completion handler
     @discardableResult
     public func performAndReturnData(request: NetworkRequest, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
-        if request.maxAttempts == 0 {
-            request.maxAttempts = maxAttempts
-        }
-
-        if request.dateDecodingStrategy == nil {
-            request.dateDecodingStrategy = dateDecodingStrategy
-        }
-
         return perform(request: request, resultType: Data.self, completionHandler: handler)
     }
 
