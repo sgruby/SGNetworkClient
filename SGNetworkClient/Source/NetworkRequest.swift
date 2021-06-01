@@ -20,13 +20,13 @@ public class NetworkRequest {
 
     let method: HTTPMethod
     let path: String
-    public var maxNumberRetries: Int {
+    public var maxAttempts: Int {
         didSet {
-            currentRetryCount = maxNumberRetries
+            currentAttemptCount = maxAttempts
         }
     }
     
-    public var currentRetryCount: Int {
+    public var currentAttemptCount: Int {
         didSet {
             uploadProgress.totalUnitCount = 0
             uploadProgress.completedUnitCount = 0
@@ -48,11 +48,11 @@ public class NetworkRequest {
     public var requestCompletedHandler: (handler: RequestCompletedHandler, queue: DispatchQueue)?
     let uploadProgress = Progress(totalUnitCount: 0)
 
-    public init(method: HTTPMethod = .get, path: String, maxRetries: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
+    public init(method: HTTPMethod = .get, path: String, maxAttempts: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
         self.method = method
         self.path = path
-        self.maxNumberRetries = maxRetries
-        self.currentRetryCount = maxRetries
+        self.maxAttempts = maxAttempts
+        self.currentAttemptCount = maxAttempts
         self.logRequest = logRequest
         self.logResponse = logResponse
         self.body = nil
@@ -60,11 +60,11 @@ public class NetworkRequest {
     }
     
     // We're going to make all request be JSON
-    public init<Body: Encodable>(method: HTTPMethod = .get, path: String, body: Body, maxRetries: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
+    public init<Body: Encodable>(method: HTTPMethod = .get, path: String, body: Body, maxAttempts: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
         self.method = method
         self.path = path
-        self.maxNumberRetries = maxRetries
-        self.currentRetryCount = maxRetries
+        self.maxAttempts = maxAttempts
+        self.currentAttemptCount = maxAttempts
         self.logRequest = logRequest
         self.logResponse = logResponse
         if type(of: body) == Data.self || type(of: body) == Data?.self {

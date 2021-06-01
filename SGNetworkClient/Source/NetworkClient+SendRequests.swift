@@ -12,7 +12,7 @@ extension NetworkClient {
     @discardableResult
     public func perform(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
-        request.maxNumberRetries = maxNumberRetries
+        request.maxAttempts = maxAttempts
         return perform(request: request, completionHandler: handler)
     }
 
@@ -20,7 +20,7 @@ extension NetworkClient {
     @discardableResult
     public func performAndReturnData(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
-        request.maxNumberRetries = maxNumberRetries
+        request.maxAttempts = maxAttempts
         return performAndReturnData(request: request, completionHandler: handler)
     }
 
@@ -34,15 +34,15 @@ extension NetworkClient {
     @discardableResult
     public func perform<T: Decodable, Body: Encodable>(method: HTTPMethod = .get, for path: String, body: Body, resultType: T.Type, resultKey: String? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, body: body, logRequest: logRequests, logResponse: logResponses)
-        request.maxNumberRetries = maxNumberRetries
+        request.maxAttempts = maxAttempts
         return perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
     }
     
     // This takes a request with no body and returns a Data object in the completion handler
     @discardableResult
     public func performAndReturnData(request: NetworkRequest, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
-        if request.maxNumberRetries == 0 {
-            request.maxNumberRetries = maxNumberRetries
+        if request.maxAttempts == 0 {
+            request.maxAttempts = maxAttempts
         }
 
         return perform(request: request, resultType: Data.self, completionHandler: handler)
@@ -52,8 +52,8 @@ extension NetworkClient {
     // ResultKey is used if the object you want to get back is not the full JSON response.
     @discardableResult
     public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
-        if request.maxNumberRetries == 0 {
-            request.maxNumberRetries = maxNumberRetries
+        if request.maxAttempts == 0 {
+            request.maxAttempts = maxAttempts
         }
         
         let completionQueue = completionQueue ?? self.completionQueue
@@ -67,8 +67,8 @@ extension NetworkClient {
     // This takes a request and returns a JSON parsed object in the completion handler.
     @discardableResult
     public func perform(request: NetworkRequest, completionQueue: DispatchQueue? = nil, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> NetworkTask? {
-        if request.maxNumberRetries == 0 {
-            request.maxNumberRetries = maxNumberRetries
+        if request.maxAttempts == 0 {
+            request.maxAttempts = maxAttempts
         }
 
         let completionQueue = completionQueue ?? self.completionQueue
@@ -90,7 +90,7 @@ extension NetworkClient {
             
             if self.shouldRetry(request: request, error: error) == true {
                 let newRequest = request
-                newRequest.currentRetryCount = request.currentRetryCount - 1
+                newRequest.currentAttemptCount = request.currentAttemptCount - 1
                 self.perform(request: request, resultType: resultType, resultKey: resultKey, completionQueue: completionQueue, completionHandler: handler)
             } else {
                 // Remove the request from our list
@@ -128,7 +128,7 @@ extension NetworkClient {
             
             if self.shouldRetry(request: request, error: error) == true {
                 let newRequest = request
-                newRequest.currentRetryCount = request.currentRetryCount - 1
+                newRequest.currentAttemptCount = request.currentAttemptCount - 1
                 self.perform(request: request, completionQueue: completionQueue, completionHandler: handler)
             } else {
                 // Remove the request from our list
@@ -154,7 +154,7 @@ extension NetworkClient {
     private func createNetworkTask(request: NetworkRequest, preparedURLRequest: NetworkPreparedRequest, hasCompletionHandler: Bool, taskHandler: @escaping ((Data?, URLResponse?, Error?) -> Void)) -> NetworkTask? {
         // The individual request can turn off logging
         if request.logRequest == true && logRequests == true {
-            log(preparedRequest: preparedURLRequest, totalRetryCount: request.maxNumberRetries, currentRetry: request.currentRetryCount)
+            log(preparedRequest: preparedURLRequest, totalAttemptCount: request.maxAttempts, currentAttempt: request.currentAttemptCount)
         }
 
         var task: URLSessionTask?

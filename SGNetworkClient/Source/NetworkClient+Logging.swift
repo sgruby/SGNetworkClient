@@ -8,10 +8,10 @@
 import Foundation
 
 extension NetworkClient {
-    internal func log(preparedRequest: NetworkPreparedRequest, totalRetryCount: Int, currentRetry: Int) {
+    internal func log(preparedRequest: NetworkPreparedRequest, totalAttemptCount: Int, currentAttempt: Int) {
         let request = preparedRequest.request
         var requestString = "\n------------- Request -------------\n"
-        requestString += "---------- Attempt \(totalRetryCount - currentRetry + 1) of \(totalRetryCount) ----------\n"
+        requestString += "---------- Attempt \(totalAttemptCount - currentAttempt + 1) of \(totalAttemptCount) ----------\n"
         requestString += request.httpMethod ?? "UNKNOWN"
         requestString += " "
         requestString += request.url?.absoluteString ?? "UNKNOWN URL"

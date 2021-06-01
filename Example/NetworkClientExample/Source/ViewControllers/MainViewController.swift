@@ -73,7 +73,7 @@ class MainViewController: UIViewController {
     func sendFailedRequest() {
         let request = NetworkRequest(method: .get, path: "https://192.168.1.2")
         request.timeoutInterval = 2
-        request.retryCount = 1
+        request.maxAttempts = 1
         client?.perform(request: request) {(response) in
             print("Failed request: \(String(describing: response?.error))")
         }
