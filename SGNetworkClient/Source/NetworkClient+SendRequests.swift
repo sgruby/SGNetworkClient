@@ -45,6 +45,10 @@ extension NetworkClient {
             request.maxAttempts = maxAttempts
         }
 
+        if request.dateDecodingStrategy == nil {
+            request.dateDecodingStrategy = dateDecodingStrategy
+        }
+
         return perform(request: request, resultType: Data.self, completionHandler: handler)
     }
 
@@ -54,6 +58,10 @@ extension NetworkClient {
     public func perform<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         if request.maxAttempts == 0 {
             request.maxAttempts = maxAttempts
+        }
+        
+        if request.dateDecodingStrategy == nil {
+            request.dateDecodingStrategy = dateDecodingStrategy
         }
         
         let completionQueue = completionQueue ?? self.completionQueue
@@ -69,6 +77,10 @@ extension NetworkClient {
     public func perform(request: NetworkRequest, completionQueue: DispatchQueue? = nil, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> NetworkTask? {
         if request.maxAttempts == 0 {
             request.maxAttempts = maxAttempts
+        }
+
+        if request.dateDecodingStrategy == nil {
+            request.dateDecodingStrategy = dateDecodingStrategy
         }
 
         let completionQueue = completionQueue ?? self.completionQueue
@@ -102,6 +114,7 @@ extension NetworkClient {
                 self.removeTask(networkTask)
 
                 let response = NetworkClient.handleResponse(resultType: resultType,
+                                                            dateDecodingStrategy: request.dateDecodingStrategy,
                                                             resultKey: resultKey,
                                                             data: data,
                                                             urlResponse: urlResponse,

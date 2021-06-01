@@ -23,8 +23,9 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     public var logRequests: Bool = false
     public var logResponses: Bool = false
     public var completionQueue: DispatchQueue = .main
+    public var dateDecodingStrategy: JSONDecoder.DateDecodingStrategy = .deferredToDate
     internal var additionalHeaders: [HTTPHeader] = []
-
+    
     public var userAgent: String? {
         get {
             (additionalHeaders.first {$0.field == "User-Agent"})?.value

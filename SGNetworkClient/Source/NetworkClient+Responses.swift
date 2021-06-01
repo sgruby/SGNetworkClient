@@ -8,7 +8,7 @@
 import Foundation
 
 extension NetworkClient {
-    static func handleResponse<T: Decodable>(resultType: T.Type, resultKey: String? = nil, data: Data?, urlResponse: URLResponse?, error: Error?, task: NetworkTask?) -> (NetworkResponse<T>) {
+    static func handleResponse<T: Decodable>(resultType: T.Type, dateDecodingStrategy: JSONDecoder.DateDecodingStrategy?, resultKey: String? = nil, data: Data?, urlResponse: URLResponse?, error: Error?, task: NetworkTask?) -> (NetworkResponse<T>) {
         var returnError: Error?
         var result: T?
         if let error = error as? URLError, case URLError.cancelled = error {
@@ -26,6 +26,9 @@ extension NetworkClient {
                             result = data as? T
                         } else {
                             let decoder = JSONKeyDecoder(key: resultKey)
+                            if let dateDecodingStrategy = dateDecodingStrategy {
+                                decoder.dateDecodingStrategy = dateDecodingStrategy
+                            }
                             do {
                                 result = try decoder.decode(resultType, from: data)
                             } catch {

@@ -35,17 +35,18 @@ public class NetworkRequest {
 
     public var queryItems: [URLQueryItem]?
     public var queryItemsPercentEncoded: Bool = false
-    var headers: [HTTPHeader] = []
-    let body: Data?
     public var timeoutInterval: TimeInterval
-    let logRequest: Bool
-    let logResponse: Bool
     public var multipartBody: MultipartBody = MultipartBody(boundary: MultipartBoundary.boundaryString())
     public var credentials: URLCredential?
-    let uuid: UUID = UUID()
-
+    public var dateDecodingStrategy: JSONDecoder.DateDecodingStrategy?
     public var uploadProgressHandler: (handler: ProgressHandler, queue: DispatchQueue)?
     public var requestCompletedHandler: (handler: RequestCompletedHandler, queue: DispatchQueue)?
+
+    var headers: [HTTPHeader] = []
+    let body: Data?
+    let logRequest: Bool
+    let logResponse: Bool
+    let uuid: UUID = UUID()
     let uploadProgress = Progress(totalUnitCount: 0)
 
     public init(method: HTTPMethod = .get, path: String, maxAttempts: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
