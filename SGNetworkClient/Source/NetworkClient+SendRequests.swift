@@ -34,7 +34,14 @@ extension NetworkClient {
         let request = NetworkRequest(method: method, path: path, body: body, logRequest: logRequests, logResponse: logResponses)
         return perform(request: request, resultType: resultType, resultKey: resultKey, completionHandler: handler)
     }
-    
+
+    // This takes a method and path with a encodable object that is encoded to JSON and returns a JSON parsed object in the completion handler.
+    @discardableResult
+    public func perform<Body: Encodable>(method: HTTPMethod = .get, for path: String, body: Body, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> NetworkTask? {
+        let request = NetworkRequest(method: method, path: path, body: body, logRequest: logRequests, logResponse: logResponses)
+        return perform(request: request, completionHandler: handler)
+    }
+
     // This takes a request with no body and returns a Data object in the completion handler
     @discardableResult
     public func performAndReturnData(request: NetworkRequest, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
