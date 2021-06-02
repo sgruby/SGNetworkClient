@@ -11,7 +11,7 @@ extension NetworkClient {
     internal func log(preparedRequest: NetworkPreparedRequest, totalAttemptCount: Int, currentAttempt: Int) {
         let request = preparedRequest.request
         var requestString = "\n------------- Request -------------\n"
-        requestString += "---------- Attempt \(totalAttemptCount - currentAttempt + 1) of \(totalAttemptCount) ----------\n"
+        requestString += "---------- Attempt \(totalAttemptCount - currentAttempt + 1) of \(totalAttemptCount > 0 ? totalAttemptCount : 1) ----------\n"
         requestString += request.httpMethod ?? "UNKNOWN"
         requestString += " "
         requestString += request.url?.absoluteString ?? "UNKNOWN URL"
