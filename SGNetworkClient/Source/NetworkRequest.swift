@@ -49,14 +49,14 @@ public class NetworkRequest {
     let uuid: UUID = UUID()
     let uploadProgress = Progress(totalUnitCount: 0)
 
-    public init(method: HTTPMethod = .get, path: String, maxAttempts: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
+    public init(method: HTTPMethod = .get, path: String, body: Data? = nil, maxAttempts: Int = 0, logRequest: Bool = true, logResponse: Bool = true) {
         self.method = method
         self.path = path
         self.maxAttempts = maxAttempts
         self.currentAttemptCount = maxAttempts
         self.logRequest = logRequest
         self.logResponse = logResponse
-        self.body = nil
+        self.body = body
         self.timeoutInterval = 0
     }
     
