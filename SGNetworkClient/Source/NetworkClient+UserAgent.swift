@@ -6,7 +6,9 @@
 //  Licensed under the MIT License.
 
 import Foundation
+#if !os(OSX)
 import UIKit
+#endif
 
 extension NetworkClient {
     internal static let defaultUserAgent: String = {
