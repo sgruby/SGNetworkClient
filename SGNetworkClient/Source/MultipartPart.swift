@@ -9,6 +9,7 @@ import Foundation
 
 #if os(iOS) || os(watchOS) || os(tvOS)
 import MobileCoreServices
+import UIKit
 #elseif os(macOS)
 import CoreServices
 #endif
@@ -16,16 +17,19 @@ import CoreServices
 public enum MIMEType {
     case plainText
     case utf8Text
+    case image
     case binary
     case video
     case other(value: String)
     
-    func string() -> String {
+    public func string() -> String {
         switch self {
         case .plainText:
             return "text/plain"
         case .utf8Text:
             return "text/plain; charset=utf-8"
+        case .image:
+            return "image/png"
         case .binary:
             return "application/octet-stream"
         case .video:
@@ -37,11 +41,11 @@ public enum MIMEType {
 }
 
 public struct MultipartPart {
-    let mimeType: MIMEType?
-    let filename: String?
+    public let mimeType: MIMEType?
+    public let filename: String?
     let name: String
-    let bodyStream: InputStream
-    let length: UInt64
+    public let bodyStream: InputStream
+    public let length: UInt64
     
     public  init(string: String, name: String, filename: String? = nil) {
         self.init(data: Data(string.utf8), name: name, filename: filename, mimeType: .utf8Text)
@@ -54,7 +58,18 @@ public struct MultipartPart {
     public init(video: Data, name: String, filename: String) {
         self.init(data: video, name: name, filename: filename, mimeType: .video)
     }
-    
+
+    #if !os(OSX)
+    public init(image: UIImage, name: String, filename: String) {
+        var data: Data = Data()
+        if let imageData = image.pngData() {
+            data = imageData
+        }
+
+        self.init(data: data, name: name, filename: filename, mimeType: .image)
+    }
+    #endif
+
     public init(data: Data, name: String, filename: String? = nil, mimeType: MIMEType? = nil) {
         self.bodyStream = InputStream(data: data)
         self.name = name
