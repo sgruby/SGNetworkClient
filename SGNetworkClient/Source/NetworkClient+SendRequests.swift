@@ -91,9 +91,22 @@ extension NetworkClient {
     private func parseableTaskHandler<T: Decodable>(request: NetworkRequest, resultType: T.Type, resultKey: String? = nil, completionQueue: DispatchQueue, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> ((Data?, URLResponse?, Error?) -> Void) {
         let taskHandler: (Data?, URLResponse?, Error?) -> Void = {[weak self] (data, urlResponse, error) in
             guard let self = self else {return}
-            
+
+            let networkTask = self.networkTask(for: request.uuid)
+
             if request.logResponse == true && self.logResponses == true {
                 self.log(urlResponse: urlResponse, data: data, error: error)
+                if let task = networkTask?.dataTask {
+                    if let error = error {
+                        self.log(task: task, error: error)
+                    } else {
+                        if let dataTask = task as? URLSessionDataTask {
+                            self.log(task: dataTask, response: urlResponse, data: data)
+                        }
+                        
+                        self.log(task: task, error: error)
+                    }
+                }
             }
             
             if self.shouldRetry(request: request, error: error) == true {
@@ -102,7 +115,6 @@ extension NetworkClient {
                 self.perform(request: request, resultType: resultType, resultKey: resultKey, completionQueue: completionQueue, completionHandler: handler)
             } else {
                 // Remove the request from our list
-                let networkTask = self.networkTask(for: request.uuid)
                 if let tempFileURL = networkTask?.tempFileURL {
                     try? FileManager.default.removeItem(at: tempFileURL)
                 }
@@ -131,8 +143,21 @@ extension NetworkClient {
         let taskHandler: (Data?, URLResponse?, Error?) -> Void = {[weak self] (data, urlResponse, error) in
             guard let self = self else {return}
             
+            let networkTask = self.networkTask(for: request.uuid)
+
             if request.logResponse == true && self.logResponses == true {
                 self.log(urlResponse: urlResponse, data: data, error: error)
+                if let task = networkTask?.dataTask {
+                    if let error = error {
+                        self.log(task: task, error: error)
+                    } else {
+                        if let dataTask = task as? URLSessionDataTask {
+                            self.log(task: dataTask, response: urlResponse, data: data)
+                        }
+
+                        self.log(task: task, error: error)
+                    }
+                }
             }
             
             if self.shouldRetry(request: request, error: error) == true {
@@ -141,7 +166,6 @@ extension NetworkClient {
                 self.perform(request: request, completionQueue: completionQueue, completionHandler: handler)
             } else {
                 // Remove the request from our list
-                let networkTask = self.networkTask(for: request.uuid)
                 if let tempFileURL = networkTask?.tempFileURL {
                     try? FileManager.default.removeItem(at: tempFileURL)
                 }

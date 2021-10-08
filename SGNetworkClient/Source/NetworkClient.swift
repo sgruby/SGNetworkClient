@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class NetworkClient: NSObject, URLSessionTaskDelegate {
+open class NetworkClient: NSObject, URLSessionDataDelegate {
     // The networkTasks can be accessed on multiple threads,
     // so we have to be careful when we access it and use
     // the lockingQueue to handle that
@@ -19,6 +19,9 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
     
     public var responseLogger: ((String, Bool) -> Void)?
     public var requestLogger: ((String) -> Void)?
+    public var dataTaskLogger: ((URLSessionDataTask, URLResponse?, Data?) -> Void)?
+    public var taskCompleteLogger: ((URLSessionTask, Error?) -> Void)?
+    public var metricsLogger: ((URLSessionTask, URLSessionTaskMetrics) -> Void)?
     public var backgroundDidFinishEventsHandler: ((URLSession) -> Void)?
     public var logRequests: Bool = false
     public var logResponses: Bool = false
@@ -107,11 +110,28 @@ open class NetworkClient: NSObject, URLSessionTaskDelegate {
         }
     }
     
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        log(task: dataTask, response: nil, data: data)
+    }
+    
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        log(task: dataTask, response: response, data: nil)
+        completionHandler(.allow)
+    }
+
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+        guard let completedTask = networkTask(for: task) else {return}
+        if completedTask.networkRequest.logResponse == true && self.logResponses == true {
+            log(task: task, metrics: metrics)
+        }
+    }
+    
     // Not called when the call is made with a closure
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         guard let completedTask = networkTask(for: task) else {return}
         if completedTask.networkRequest.logResponse == true && self.logResponses == true {
-            self.log(urlResponse: task.response, data: nil, error: error)
+            log(urlResponse: task.response, data: nil, error: error)
+            log(task: task, error: error)
         }
 
         completedTask.networkRequest.requestCompleted(response: task.response, error: error)

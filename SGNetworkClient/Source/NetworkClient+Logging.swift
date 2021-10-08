@@ -52,6 +52,18 @@ extension NetworkClient {
         requestString += "\n----------------------------------------\n"
         requestLogger?(requestString)
     }
+    
+    internal func log(task: URLSessionDataTask, response: URLResponse?, data: Data?) {
+        dataTaskLogger?(task, response, data)
+    }
+    
+    internal func log(task: URLSessionTask, error: Error?) {
+        taskCompleteLogger?(task, error)
+    }
+    
+    internal func log(task: URLSessionTask, metrics: URLSessionTaskMetrics) {
+        metricsLogger?(task, metrics)
+    }
 
     internal func log(urlResponse: URLResponse?, data: Data?, error: Error?) {
         var responseString = "\n---------------------- Response ----------------------\n"
