@@ -108,10 +108,16 @@ public class NetworkRequest {
         
         
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true)
-        if queryItemsPercentEncoded == true {
-            urlComponents?.percentEncodedQueryItems = queryItems
-        } else {
-            urlComponents?.queryItems = queryItems
+        
+        // While it really doesn't make a difference, if there is an empty array
+        // of query items, it appears that a ? is appended to the URL even though
+        // it is not necessary.
+        if let queryItems = queryItems, queryItems.isEmpty == false {
+            if queryItemsPercentEncoded == true {
+                urlComponents?.percentEncodedQueryItems = queryItems
+            } else {
+                urlComponents?.queryItems = queryItems
+            }
         }
         
         guard let resolvedURL = urlComponents?.url else {return nil}
