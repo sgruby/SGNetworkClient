@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D21D8EFF273ACFAE0084768F /* NetworkClient+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21D8EFE273ACFAE0084768F /* NetworkClient+Async.swift */; };
+		D21D8F00273AD0BB0084768F /* NetworkClient+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21D8EFE273ACFAE0084768F /* NetworkClient+Async.swift */; };
 		D22591BA2639C30A00C50337 /* MultipartBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = D22591B82639C30A00C50337 /* MultipartBody.swift */; };
 		D22591BB2639C30A00C50337 /* MultipartBoundary.swift in Sources */ = {isa = PBXBuildFile; fileRef = D22591B92639C30A00C50337 /* MultipartBoundary.swift */; };
 		D29094DB26371EDD00FE0EBC /* SGNetworkClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D29094D126371EDD00FE0EBC /* SGNetworkClient.framework */; };
@@ -55,6 +57,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D21D8EFE273ACFAE0084768F /* NetworkClient+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkClient+Async.swift"; sourceTree = "<group>"; };
 		D22591B82639C30A00C50337 /* MultipartBody.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MultipartBody.swift; path = Source/MultipartBody.swift; sourceTree = "<group>"; };
 		D22591B92639C30A00C50337 /* MultipartBoundary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MultipartBoundary.swift; path = Source/MultipartBoundary.swift; sourceTree = "<group>"; };
 		D24BB76C26376F2F00F041E5 /* Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shared.xcconfig; sourceTree = "<group>"; };
@@ -154,6 +157,7 @@
 				D290950926371F9A00FE0EBC /* NetworkClient+Logging.swift */,
 				D290950226371F9A00FE0EBC /* NetworkClient+Responses.swift */,
 				D290950326371F9A00FE0EBC /* NetworkClient+SendRequests.swift */,
+				D21D8EFE273ACFAE0084768F /* NetworkClient+Async.swift */,
 				D290950026371F9A00FE0EBC /* NetworkClient+UserAgent.swift */,
 				D290950526371F9A00FE0EBC /* NetworkError.swift */,
 				D290950826371F9A00FE0EBC /* NetworkRequest.swift */,
@@ -328,6 +332,7 @@
 				D290950E26371F9A00FE0EBC /* NetworkClient.swift in Sources */,
 				D290951426371F9A00FE0EBC /* NetworkClient+Authentication.swift in Sources */,
 				D2C99E192639F2650095D6BD /* NetworkResponse.swift in Sources */,
+				D21D8EFF273ACFAE0084768F /* NetworkClient+Async.swift in Sources */,
 				D290951526371F9A00FE0EBC /* NetworkRequest.swift in Sources */,
 				D22591BB2639C30A00C50337 /* MultipartBoundary.swift in Sources */,
 				D290951026371F9A00FE0EBC /* NetworkClient+SendRequests.swift in Sources */,
@@ -359,6 +364,7 @@
 				D2DC7979266808550058B05F /* NetworkTask.swift in Sources */,
 				D2DC7978266808550058B05F /* JSONKeyDecoder.swift in Sources */,
 				D2DC797D266808550058B05F /* MultipartBody.swift in Sources */,
+				D21D8F00273AD0BB0084768F /* NetworkClient+Async.swift in Sources */,
 				D2DC7980266808550058B05F /* NetworkResponse.swift in Sources */,
 				D2DC7981266808550058B05F /* Error+NetworkExtensions.swift in Sources */,
 				D2DC7973266808550058B05F /* NetworkError.swift in Sources */,
