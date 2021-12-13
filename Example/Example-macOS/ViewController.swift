@@ -39,24 +39,14 @@ class ViewController: NSViewController {
 
     func sendParsedRequest() {
         guard let client = client else {return}
-        if #available(macOS 12.0, *) {
-            Task {
-                do {
-                    let networkResult = try await client.perform(method: .get, for: "/todos/1")
-                    if let result = networkResult.result {
-                        print("result: \(result)")
-                    }
-                } catch {
-                    
+        Task {
+            do {
+                let networkResult = try await client.perform(method: .get, for: "/todos/1")
+                if let result = networkResult.result {
+                    print("result: \(result)")
                 }
-            }
-        } else {
-            client.perform(method: .get, for: "/todos/1", resultType: Mock.self) {(response) in
-                if let error = response?.error {
-                    print("Error: \(error.localizedDescription)")
-                } else {
-                    print("result: \(String(describing: response?.result))")
-                }
+            } catch {
+                
             }
         }
     }

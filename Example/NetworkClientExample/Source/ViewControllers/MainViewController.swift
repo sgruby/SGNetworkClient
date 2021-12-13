@@ -38,44 +38,24 @@ class MainViewController: UIViewController {
         guard let client = client else {return}
         let request = NetworkRequest(method: .get, path: "https://authenticationtest.com/HTTPAuth/")
         request.credentials = URLCredential(user: "user", password: "pass", persistence: .forSession)
-        if #available(macOS 12.0, iOS 15.0, *) {
-            Task {
-                do {
-                    let response = try await client.perform(request: request)
-                    print("result using async: \(String(describing: response.result))")
-                } catch {
-                    print("Error using async: \(error.localizedDescription)")
-                }
-            }
-        } else {
-            client.perform(request: request) {(response) in
-                if let error = response?.error {
-                    print("Error: \(error.localizedDescription)")
-                } else {
-                    print("result: \(String(describing: response?.result))")
-                }
+        Task {
+            do {
+                let response = try await client.perform(request: request)
+                print("result using async: \(String(describing: response.result))")
+            } catch {
+                print("Error using async: \(error.localizedDescription)")
             }
         }
     }
     
     func sendParsedRequest() {
         guard let client = client else {return}
-        if #available(macOS 12.0, iOS 15.0, *) {
-            Task {
-                do {
-                    let response = try await client.perform(method: .get, for: "/todos/1")
-                    print("result using async: \(String(describing: response.result))")
-                } catch {
-                    print("Error using async: \(error.localizedDescription)")
-                }
-            }
-        } else {
-            client.perform(method: .get, for: "/todos/1", resultType: Mock.self) {(response) in
-                if let error = response?.error {
-                    print("Error: \(error.localizedDescription)")
-                } else {
-                    print("result: \(String(describing: response?.result))")
-                }
+        Task {
+            do {
+                let response = try await client.perform(method: .get, for: "/todos/1")
+                print("result using async: \(String(describing: response.result))")
+            } catch {
+                print("Error using async: \(error.localizedDescription)")
             }
         }
     }
@@ -102,18 +82,12 @@ class MainViewController: UIViewController {
         let request = NetworkRequest(method: .get, path: "https://192.168.1.2")
         request.timeoutInterval = 2
         request.maxAttempts = 1
-        if #available(macOS 12.0, iOS 15.0, *) {
-            Task {
-                do {
-                    let response = try await client.perform(request: request)
-                    print("result using async: \(String(describing: response.result))")
-                } catch {
-                    print("Error using async: \(error.localizedDescription)")
-                }
-            }
-        } else {
-            client.perform(request: request) {(response) in
-                print("Failed request: \(String(describing: response?.error))")
+        Task {
+            do {
+                let response = try await client.perform(request: request)
+                print("result using async: \(String(describing: response.result))")
+            } catch {
+                print("Error using async: \(error.localizedDescription)")
             }
         }
     }

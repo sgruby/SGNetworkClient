@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, *)
 extension NetworkClient {
     public func perform(method: HTTPMethod = .get, for path: String) async throws -> (NetworkResponse<[String: Any]>) {
         let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)

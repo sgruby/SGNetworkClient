@@ -9,3 +9,5 @@ DispatchQueue.main in the responses. While there are cases to have the calls com
 a separate queue, this simplifies a lot of things.
 
 Comments and suggestions are welcome.
+
+This requires Xcode 13.2 as it has support for async/await concurrency.
