@@ -15,13 +15,6 @@ extension NetworkClient {
         return perform(request: request, completionHandler: handler)
     }
 
-    // This takes a method and path with no body and returns a Data object in the completion handler
-    @discardableResult
-    public func performAndReturnData(method: HTTPMethod = .get, for path: String, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
-        let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
-        return performAndReturnData(request: request, completionHandler: handler)
-    }
-
     @discardableResult
     public func perform<T: Decodable>(method: HTTPMethod = .get, for path: String, resultType: T.Type, resultKey: String? = nil, completionHandler handler: ((NetworkResponse<T>?) -> Void)? = nil) -> NetworkTask? {
         return perform(method: method, for: path, body: Data(), resultType: resultType, resultKey: resultKey, completionHandler: handler)
@@ -40,12 +33,6 @@ extension NetworkClient {
     public func perform<Body: Encodable>(method: HTTPMethod = .get, for path: String, body: Body, completionHandler handler: ((NetworkResponse<[String: Any]>?) -> Void)? = nil) -> NetworkTask? {
         let request = NetworkRequest(method: method, path: path, body: body, logRequest: logRequests, logResponse: logResponses)
         return perform(request: request, completionHandler: handler)
-    }
-
-    // This takes a request with no body and returns a Data object in the completion handler
-    @discardableResult
-    public func performAndReturnData(request: NetworkRequest, completionHandler handler: ((NetworkResponse<Data>?) -> Void)? = nil) -> NetworkTask? {
-        return perform(request: request, resultType: Data.self, completionHandler: handler)
     }
 
     // This takes a request and returns a JSON parsed object in the completion handler.
