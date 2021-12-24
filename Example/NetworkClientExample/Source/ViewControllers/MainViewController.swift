@@ -8,6 +8,13 @@
 import UIKit
 import SGNetworkClient
 
+struct User: Decodable {
+    let userId: Int
+    let id: Int
+    let title: String
+    let completed: Bool
+}
+
 class MainViewController: UIViewController {
     @IBOutlet weak var label: UILabel!
     var client: NetworkClient?
@@ -29,8 +36,10 @@ class MainViewController: UIViewController {
             }
         
             sendParsedRequest()
-            sendAuthenticatedRequest()
-            sendFailedRequest()
+//            sendAuthenticatedRequest()
+//            sendFailedRequest()
+//            sendLargeDownloadWithCancel()
+//            sendLargeDownload(with: true)
         }
     }
     
@@ -52,7 +61,7 @@ class MainViewController: UIViewController {
         guard let client = client else {return}
         Task {
             do {
-                let response = try await client.perform(method: .get, for: "/todos/1")
+                let response: NetworkResponse<User> = try await client.perform(method: .get, for: "/todos/1")
                 print("result using async: \(String(describing: response.result))")
             } catch {
                 print("Error using async: \(error.localizedDescription)")
@@ -60,21 +69,28 @@ class MainViewController: UIViewController {
         }
     }
     
-    func sendLargeDownloadWithCancel() {
+    func sendLargeDownload(with cancel: Bool = false) {
         guard let client = client else {return}
 
         let request = NetworkRequest(path: "http://ipv4.download.thinkbroadband.com/10MB.zip")
-        let task = client.perform(request: request) {(response) in
-            if let result = response?.result {
-                print("download length: \(result.count)")
+        let task = Task {
+            do {
+                let response: NetworkResponse<Data> = try await client.perform(request: request)
+                print("respnse: \(response.result?.count ?? 0)")
+            } catch {
+                if Task.isCancelled == true {
+                    print("Task was cancelled")
+                } else {
+                    print("Error using async: \(error.localizedDescription)")
+                }
             }
-            print("Large download: \(String(describing: response?.error))")
         }
 
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
-            task?.cancel()
+        if cancel == true {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
+                task.cancel()
+            }
         }
-
     }
     
     func sendFailedRequest() {
