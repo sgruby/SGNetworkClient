@@ -8,7 +8,7 @@
 import Foundation
 
 extension NetworkClient {
-    static func handleResponse<T: Decodable>(resultType: T.Type, dateDecodingStrategy: JSONDecoder.DateDecodingStrategy?, resultKey: String? = nil, data: Data?, urlResponse: URLResponse?, error: Error?, task: NetworkTask?) -> (NetworkResponse<T>) {
+    static func handleResponse<T: Decodable>(dateDecodingStrategy: JSONDecoder.DateDecodingStrategy?, resultKey: String? = nil, data: Data?, urlResponse: URLResponse?, error: Error?, task: NetworkTask?) -> (NetworkResponse<T>) {
         var returnError: Error?
         var result: T?
         if let error = error as? URLError, case URLError.cancelled = error {
@@ -22,9 +22,9 @@ extension NetworkClient {
                 } else {
                     // Parse the data
                     if let data = data {
-                        if resultType == Data.self {
+                        if T.self == Data.self {
                             result = data as? T
-                        } else if resultType == String.self {
+                        } else if T.self == String.self {
                             result = String(data: data, encoding: .utf8) as? T
                         } else {
                             let decoder = JSONKeyDecoder(key: resultKey)
@@ -32,7 +32,7 @@ extension NetworkClient {
                                 decoder.dateDecodingStrategy = dateDecodingStrategy
                             }
                             do {
-                                result = try decoder.decode(resultType, from: data)
+                                result = try decoder.decode(T.self, from: data)
                             } catch {
                                 returnError = NetworkError.decodingFailure(data: data)
                             }

@@ -85,7 +85,7 @@ public class NetworkRequest {
         headers.append(HTTPHeader(field: key, value: header))
     }
 
-    func prepareURLRequest(with client: NetworkClient, alwaysWriteToFile: Bool = false) -> NetworkPreparedRequest? {
+    func prepareURLRequest(with client: NetworkClient) -> NetworkPreparedRequest? {
         var url: URL = client.baseURL
 
         // See if this is a full URL
@@ -146,7 +146,7 @@ public class NetworkRequest {
             extraHeaders.append(HTTPHeader(field: "Content-Type", value: "multipart/form-data; boundary=\(multipartBody.boundary)"))
 
             // Over 10 MB, write to a file to be more memory efficient
-            if multipartBody.contentLength < 10_000_000 && alwaysWriteToFile == false {
+            if multipartBody.contentLength < 10_000_000 {
                 if let data = prepareUploadData() {
                     var extraHeaders: [HTTPHeader] = []
                     extraHeaders.append(HTTPHeader(field: "Content-Length", value: "\(data.count)"))

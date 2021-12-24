@@ -37,17 +37,15 @@ extension NetworkClient {
             taskWrapper.task?.cancel()
         }, operation: {
             try await withCheckedThrowingContinuation { continuation in
-                taskWrapper.task = self.perform(request: request, resultType: T.self, resultKey: resultKey, completionQueue: DispatchQueue.global(qos: .background)) { response in
-                    if let response = response {
-                        if let error = response.error {
-                            return continuation.resume(throwing: error)
-                        } else {
-                            return continuation.resume(returning: response)
-                        }
+                let result: ((NetworkResponse<T>) -> Void) = {response in
+                    if let error = response.error {
+                        return continuation.resume(throwing: error)
                     } else {
-                        return continuation.resume(throwing: URLError(.badServerResponse))
+                        return continuation.resume(returning: response)
                     }
                 }
+                
+                taskWrapper.task = self.perform(request: request, resultKey: resultKey, completionQueue: DispatchQueue.global(qos: .background), completionHandler: result)
             }
         })
     }
@@ -59,14 +57,10 @@ extension NetworkClient {
         }, operation: {
             try await withCheckedThrowingContinuation { continuation in
                 taskWrapper.task = self.perform(request: request, completionQueue: DispatchQueue.global(qos: .background)) { response in
-                    if let response = response {
-                        if let error = response.error {
-                            return continuation.resume(throwing: error)
-                        } else {
-                            return continuation.resume(returning: response)
-                        }
+                    if let error = response.error {
+                        return continuation.resume(throwing: error)
                     } else {
-                        return continuation.resume(throwing: URLError(.badServerResponse))
+                        return continuation.resume(returning: response)
                     }
                 }
             }
