@@ -24,6 +24,8 @@ extension NetworkClient {
                     if let data = data {
                         if resultType == Data.self {
                             result = data as? T
+                        } else if resultType == String.self {
+                            result = String(data: data, encoding: .utf8) as? T
                         } else {
                             let decoder = JSONKeyDecoder(key: resultKey)
                             if let dateDecodingStrategy = dateDecodingStrategy {
