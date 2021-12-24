@@ -38,8 +38,7 @@ class MainViewController: UIViewController {
             sendParsedRequest()
 //            sendAuthenticatedRequest()
 //            sendFailedRequest()
-//            sendLargeDownloadWithCancel()
-//            sendLargeDownload(with: true)
+//            sendLargeDownload(cancel: false)
         }
     }
     
@@ -49,7 +48,7 @@ class MainViewController: UIViewController {
         request.credentials = URLCredential(user: "user", password: "pass", persistence: .forSession)
         Task {
             do {
-                let response = try await client.perform(request: request)
+                let response: NetworkResponse<String> = try await client.perform(request: request)
                 print("result using async: \(String(describing: response.result))")
             } catch {
                 print("Error using async: \(error.localizedDescription)")
@@ -69,7 +68,7 @@ class MainViewController: UIViewController {
         }
     }
     
-    func sendLargeDownload(with cancel: Bool = false) {
+    func sendLargeDownload(cancel: Bool = false) {
         guard let client = client else {return}
 
         let request = NetworkRequest(path: "http://ipv4.download.thinkbroadband.com/10MB.zip")
@@ -100,7 +99,7 @@ class MainViewController: UIViewController {
         request.maxAttempts = 1
         Task {
             do {
-                let response = try await client.perform(request: request)
+                let response: NetworkResponse<[String: Any]> = try await client.perform(request: request)
                 print("result using async: \(String(describing: response.result))")
             } catch {
                 print("Error using async: \(error.localizedDescription)")
