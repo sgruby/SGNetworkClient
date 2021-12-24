@@ -19,12 +19,12 @@ extension NetworkClient {
         return try await perform(method: method, for: path, body: Data(), resultKey: resultKey)
     }
     
-    public func perform<T: Decodable, Body: Encodable>(method: HTTPMethod = .get, for path: String, body: Body, resultKey: String? = nil) async throws -> (NetworkResponse<T>) {
+    public func perform<T: Decodable, Body: Encodable>(method: HTTPMethod = .post, for path: String, body: Body, resultKey: String? = nil) async throws -> (NetworkResponse<T>) {
         let request = NetworkRequest(method: method, path: path, body: body, logRequest: logRequests, logResponse: logResponses)
         return try await perform(request: request, resultKey: resultKey)
     }
     
-    public func perform<Body: Encodable>(method: HTTPMethod = .get, for path: String, body: Body) async throws -> (NetworkResponse<[String: Any]>) {
+    public func perform<Body: Encodable>(method: HTTPMethod = .post, for path: String, body: Body) async throws -> (NetworkResponse<[String: Any]>) {
         let request = NetworkRequest(method: method, path: path, body: body, logRequest: logRequests, logResponse: logResponses)
         return try await perform(request: request)
     }
