@@ -75,7 +75,7 @@ class MainViewController: UIViewController {
         let task = Task {
             do {
                 let response: NetworkResponse<Data> = try await client.perform(request: request)
-                print("respnse: \(response.result?.count ?? 0)")
+                print("Large file download response size: \(response.result?.count ?? 0)")
             } catch {
                 if Task.isCancelled == true {
                     print("Task was cancelled")
