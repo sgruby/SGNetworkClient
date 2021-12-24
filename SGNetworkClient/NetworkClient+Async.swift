@@ -1,9 +1,10 @@
 //
 //  NetworkClient+Async.swift
-//  SGNetworkClient
+//  NetworkClient
 //
-//  Created by Scott Gruby on 11/9/21.
-//
+//  Copyright (c) 2021 Scott Gruby. All rights reserved.
+//  Licensed under the MIT License.
+
 
 import Foundation
 
