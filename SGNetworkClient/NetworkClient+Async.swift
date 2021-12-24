@@ -15,11 +15,6 @@ extension NetworkClient {
         return try await perform(request: request)
     }
     
-    public func perform(method: HTTPMethod = .get, for path: String) async throws -> (NetworkResponse<Data>) {
-        let request = NetworkRequest(method: method, path: path, logRequest: logRequests, logResponse: logResponses)
-        return try await perform(request: request)
-    }
-
     public func perform<T: Decodable>(method: HTTPMethod = .get, for path: String, resultKey: String? = nil) async throws -> (NetworkResponse<T>) {
         return try await perform(method: method, for: path, body: Data(), resultKey: resultKey)
     }
