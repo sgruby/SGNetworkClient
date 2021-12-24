@@ -41,12 +41,12 @@ class ViewController: NSViewController {
         guard let client = client else {return}
         Task {
             do {
-                let networkResult = try await client.perform(method: .get, for: "/todos/1")
-                if let result = networkResult.result {
+                let response: NetworkResponse<User> = try await client.perform(method: .get, for: "/todos/1")
+                if let result = response.result {
                     print("result: \(result)")
                 }
             } catch {
-                
+                print("Error using async: \(error.localizedDescription)")
             }
         }
     }

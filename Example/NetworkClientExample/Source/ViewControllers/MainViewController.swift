@@ -8,13 +8,6 @@
 import UIKit
 import SGNetworkClient
 
-struct User: Decodable {
-    let userId: Int
-    let id: Int
-    let title: String
-    let completed: Bool
-}
-
 class MainViewController: UIViewController {
     @IBOutlet weak var label: UILabel!
     var client: NetworkClient?

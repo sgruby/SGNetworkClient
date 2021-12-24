@@ -15,6 +15,8 @@
 		D26032BF2634632F0023813C /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D26032BD2634632F0023813C /* MainViewController.swift */; };
 		D26032C02634632F0023813C /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D26032BE2634632F0023813C /* MainViewController.xib */; };
 		D26032C9263466E40023813C /* MockModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D26032C8263466E40023813C /* MockModel.swift */; };
+		D27A8B4727763EB8007DC7B3 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = D27A8B4627763EB8007DC7B3 /* User.swift */; };
+		D27A8B4827763EB8007DC7B3 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = D27A8B4627763EB8007DC7B3 /* User.swift */; };
 		D29094FD26371F5C00FE0EBC /* SGNetworkClient.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D29094F426371F3A00FE0EBC /* SGNetworkClient.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D2DC793C266807B90058B05F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2DC793B266807B90058B05F /* AppDelegate.swift */; };
 		D2DC793E266807B90058B05F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2DC793D266807B90058B05F /* ViewController.swift */; };
@@ -98,6 +100,7 @@
 		D26032BD2634632F0023813C /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		D26032BE2634632F0023813C /* MainViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainViewController.xib; sourceTree = "<group>"; };
 		D26032C8263466E40023813C /* MockModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockModel.swift; sourceTree = "<group>"; };
+		D27A8B4627763EB8007DC7B3 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		D29094EE26371F3A00FE0EBC /* SGNetworkClient.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SGNetworkClient.xcodeproj; path = ../SGNetworkClient.xcodeproj; sourceTree = "<group>"; };
 		D2DC7939266807B90058B05F /* Example-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Example-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2DC793B266807B90058B05F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -132,6 +135,7 @@
 				D29094EE26371F3A00FE0EBC /* SGNetworkClient.xcodeproj */,
 				D26032A4263462860023813C /* NetworkClientExample */,
 				D2DC793A266807B90058B05F /* Example-macOS */,
+				D27A8B4427763E9B007DC7B3 /* Shared */,
 				D26032A3263462860023813C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -183,6 +187,14 @@
 				D26032C8263466E40023813C /* MockModel.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		D27A8B4427763E9B007DC7B3 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D27A8B4627763EB8007DC7B3 /* User.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 		D29094EF26371F3A00FE0EBC /* Products */ = {
@@ -346,6 +358,7 @@
 				D26032BF2634632F0023813C /* MainViewController.swift in Sources */,
 				D26032C9263466E40023813C /* MockModel.swift in Sources */,
 				D26032A6263462860023813C /* AppDelegate.swift in Sources */,
+				D27A8B4727763EB8007DC7B3 /* User.swift in Sources */,
 				D26032A8263462860023813C /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -354,6 +367,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D27A8B4827763EB8007DC7B3 /* User.swift in Sources */,
 				D2DC794A266807DA0058B05F /* MockModel.swift in Sources */,
 				D2DC793E266807B90058B05F /* ViewController.swift in Sources */,
 				D2DC793C266807B90058B05F /* AppDelegate.swift in Sources */,
