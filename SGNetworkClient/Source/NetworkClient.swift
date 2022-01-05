@@ -51,12 +51,18 @@ open class NetworkClient: NSObject, URLSessionDataDelegate {
                           delegateQueue: nil)
     } ()
     
-    public init(baseURL: URL, configuration: URLSessionConfiguration? = nil) {
+    public init(baseURL: URL, configuration: URLSessionConfiguration = URLSessionConfiguration.default) {
         self.baseURL = baseURL
         timeoutInterval = 120
-        urlSessionConfiguration = configuration ?? URLSessionConfiguration.default
+        urlSessionConfiguration = configuration
         super.init()
         addHTTP(header: NetworkClient.defaultUserAgent, for: "User-Agent")
+    }
+    
+    public var protocolClasses: [AnyClass]? {
+        didSet {
+            urlSessionConfiguration.protocolClasses = protocolClasses
+        }
     }
 
     public func addHTTP(header: String, for key: String) {
