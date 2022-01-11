@@ -67,17 +67,11 @@ open class NetworkClient: NSObject, URLSessionDataDelegate {
 
     public func addHTTP(header: String, for key: String) {
         removeHTTPHeaderFor(key: key)
-        self.lockingQueue.async {[weak self] in
-            guard let self = self else {return}
-            self.additionalHeaders.append(HTTPHeader(field: key, value: header))
-        }
+        additionalHeaders.append(HTTPHeader(field: key, value: header))
     }
 
     public func removeHTTPHeaderFor(key: String) {
-        self.lockingQueue.async {[weak self] in
-            guard let self = self else {return}
-            self.additionalHeaders.removeAll {$0.field == key}
-        }
+        additionalHeaders.removeAll {$0.field == key}
     }
     
     // Reset everything
