@@ -8,6 +8,7 @@
 
 import Foundation
 
+#if compiler(>=5.5) && canImport(_Concurrency)
 final class NetworkTaskWrapper { var task: NetworkTask? }
 
 extension NetworkClient {
@@ -67,3 +68,4 @@ extension NetworkClient {
         })
     }
 }
+#endif
