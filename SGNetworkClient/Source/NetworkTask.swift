@@ -31,4 +31,8 @@ public class NetworkTask: Equatable, Hashable {
     public func cancel() {
         dataTask.cancel()
     }
+    
+    public func path() -> String {
+        return networkRequest.path
+    }
 }

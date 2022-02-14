@@ -23,6 +23,7 @@ open class NetworkClient: NSObject, URLSessionDataDelegate {
     public var taskCompleteLogger: ((URLSessionTask, Error?) -> Void)?
     public var metricsLogger: ((URLSessionTask, URLSessionTaskMetrics) -> Void)?
     public var backgroundDidFinishEventsHandler: ((URLSession) -> Void)?
+    public var receiveAuthenticationChallenge: ((NetworkTask, URLAuthenticationChallenge) -> URLCredential?)?
     public var logRequests: Bool = false
     public var logResponses: Bool = false
     public var completionQueue: DispatchQueue = .main
