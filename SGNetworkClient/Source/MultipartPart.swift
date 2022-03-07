@@ -44,8 +44,9 @@ public struct MultipartPart {
     public let mimeType: MIMEType?
     public let filename: String?
     let name: String
-    public let bodyStream: InputStream
     public let length: UInt64
+    let data: Data?
+    let fileURL: URL?
     
     public  init(string: String, name: String, filename: String? = nil) {
         self.init(data: Data(string.utf8), name: name, filename: filename, mimeType: .utf8Text)
@@ -71,7 +72,8 @@ public struct MultipartPart {
     #endif
 
     public init(data: Data, name: String, filename: String? = nil, mimeType: MIMEType? = nil) {
-        self.bodyStream = InputStream(data: data)
+        self.data = data
+        self.fileURL = nil
         self.name = name
         self.filename = filename
         self.mimeType = mimeType
@@ -79,7 +81,8 @@ public struct MultipartPart {
     }
 
     public init(url: URL, name: String, filename: String? = nil, mimeType: MIMEType? = nil) {
-        self.bodyStream = InputStream(url: url) ?? InputStream(data: Data())
+        self.fileURL = url
+        self.data = nil
         self.name = name
         self.filename = filename ?? url.lastPathComponent
         
@@ -102,4 +105,15 @@ public struct MultipartPart {
 
         return "application/octet-stream"
     }
+
+    public func bodyStream() -> InputStream? {
+        if let url = fileURL {
+            return InputStream(url: url)
+        } else if let data = data {
+            return InputStream(data: data)
+        } else {
+            return nil
+        }
+    }
+    
 }

@@ -99,7 +99,8 @@ public class MultipartBody {
     }
     
     private func encodeStream(for part: MultipartPart) -> Data {
-        let inputStream = part.bodyStream
+        guard let inputStream = part.bodyStream() else {return Data()}
+        
         inputStream.open()
         defer { inputStream.close() }
 
@@ -124,8 +125,9 @@ public class MultipartBody {
         let headerData = encodeHeader(part)
         writeStream(inputStream: InputStream(data: headerData), to: outputStream)
 
-        let inputStream = part.bodyStream
-        writeStream(inputStream: inputStream, to: outputStream)
+        if let inputStream = part.bodyStream() {
+            writeStream(inputStream: inputStream, to: outputStream)
+        }
     }
     
     private func writeStream(inputStream: InputStream, to outputStream: OutputStream) {
